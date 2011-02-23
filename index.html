@@ -1,0 +1,137 @@
+<!doctype html>  
+
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ --> 
+<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="en" class="no-js ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en" class="no-js ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+
+  <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame 
+       Remove this if you use the .htaccess -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title></title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--  Mobile viewport optimized: j.mp/bplateviewport -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Place favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+  <!-- CSS : implied media="all" -->
+  <link rel="stylesheet" href="css/style.css?v=2">
+
+  <!-- Uncomment if you are specifically targeting less enabled mobile browsers
+  <link rel="stylesheet" media="handheld" href="css/handheld.css?v=2">  -->
+ 
+  <!-- All JavaScript at the bottom, except for Modernizr which enables HTML5 elements & feature detects -->
+  <script src="js/libs/modernizr-1.6.min.js"></script>
+
+</head>
+
+<body>
+
+  <div id="container">
+    <header>
+		<h1>Find a Surgeon Protoype</h1>
+    </header>
+    
+    <div id="main">
+		<form>
+			<input type="text" id="input" />
+		</form>
+		
+		<div id="app">
+			
+			<div class="section" id="divisions">
+				<h2>Divisions</h2>
+
+				<ul class="filterable">
+					<li><a href="breast-surgery/index.html">Breast Surgery</a></li>
+					<li><a href="burn-surgery/index.html">Burns, Critical Care and Trauma</a></li>
+					<li><a href="colon-rectal/index.html">Colon and Rectal Surgery</a></li>
+					<li><a href="dentistry-oral-maxillofacial/index.html">Dentistry, Oral and Maxillofacial Surgery</a></li>
+					<li><a href="endocrine/index.html">Endocrine Surgery</a></li>
+					<li><a href="gi-motility-disorders/index.html">Gastroesophageal  Motility Disorders Center</a></li>
+					<li><a href="gi-metabolic/index.html">Gastrointestinal Metabolic Surgery</a></li>
+					<li><a href="livertransplantation/index.html">Hepatobiliary Surgery and Liver Transplantation</a></li>
+					<li><a href="transplantation/index.html">Kidney and Pancreas Transplantation</a></li>
+					<li><a href="lap-bariatric/index.html">Laparoscopy and Bariatric Surgery</a></li>
+					<li><a href="ped-surgery/index.html">Pediatric Surgery</a></li>
+					<li><a href="plastic-surgery/index.html">Plastic and Reconstructive Surgery</a></li>
+					<li><a href="surgical-oncology/index.html">Surgical Oncology </a></li>
+					<li><a href="vascular-surgery/index.html">Vascular and Endovascular Surgery</a></li>
+				</ul>
+			</div>
+
+			<div class="section" id="specialties">
+				<h2>Specialties</h2>
+				<ul class="filterable">
+					<div class="holder"></div>
+					<ul class="filterable"></ul>
+				<ul>
+			</div>
+
+			<div class="section" id="surgeons">
+				<h2>Surgeons</h2>
+				<ul class="filterable"></ul>
+			</div>
+			
+		</div>
+		
+    </div>
+    
+    <footer>
+
+    </footer>
+  </div> <!--! end of #container -->
+
+
+  <!-- Javascript at the bottom for fast page loading -->
+
+  <!-- Grab Google CDN's jQuery. fall back to local if necessary -->
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="js/libs/jquery-1.4.2.js"%3E%3C/script%3E'))</script>
+  
+  
+  <!-- scripts concatenated and minified via ant build script--> 
+  <script src="js/mylibs/jquery.lettering-0.6.1.min.js"></script>
+  <script src="js/mylibs/pubsub.js"></script>
+  <script src="js/plugins.js"></script>
+  <script src="js/script2.js"></script>
+  <!-- end concatenated and minified scripts-->
+  
+  
+  <!--[if lt IE 7 ]>
+    <script src="js/libs/dd_belatedpng.js"></script>
+    <script> DD_belatedPNG.fix('img, .png_bg'); //fix any <img> or .png_bg background-images </script>
+  <![endif]-->
+
+  <!-- yui profiler and profileviewer - remove for production -->
+  <!--script src="js/profiling/yahoo-profiling.min.js"></script>
+  <script src="js/profiling/config.js"></script-->
+  <!-- end profiling code -->
+
+
+  <!-- asynchronous google analytics: mathiasbynens.be/notes/async-analytics-snippet 
+       change the UA-XXXXX-X to be your site's ID -->
+  <script>
+   var _gaq = [['_setAccount', 'UA-XXXXX-X'], ['_trackPageview']];
+   (function(d, t) {
+    var g = d.createElement(t),
+        s = d.getElementsByTagName(t)[0];
+    g.async = true;
+    g.src = ('https:' == location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    s.parentNode.insertBefore(g, s);
+   })(document, 'script');
+  </script>
+  
+</body>
+</html>
