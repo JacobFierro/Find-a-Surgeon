@@ -4,9 +4,35 @@
 	Date: 2-23-11
 */
 
-log(FAS);
+// create namespace
+var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 
-var FAS = typeof(FAS) === "undefined" ? {} : FAS;
+SRCH.ListView = (function(){ 
+    /* privately scoped code */
+
+    return { /* public shit */ 
+
+    } 
+
+}());
 
 
-log(FAS);
+SRCH.DataModel = (function(){ 
+    /* privately scoped code */
+
+    return { /* public shit */ 
+
+    } 
+
+}());
+
+
+SRCH.DataManager = (function(){
+   
+   
+   return {
+       get_data : function() {
+           
+       }
+   } 
+});
