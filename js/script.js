@@ -36,3 +36,20 @@ SRCH.DataManager = (function(){
        }
    } 
 });
+
+
+
+$(document).ready(function() {
+	//initialize to empty text field
+	$("#input").focus().val("find some fucking shit");
+	
+	//setup lettering
+	$(".filterable a").lettering();
+	
+	//bind the keyup event, publish value
+	$('#input').keyup(function(){
+		var value = $('#input').val().toLowerCase();
+		
+	});
+
+});
