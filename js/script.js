@@ -7,49 +7,62 @@
 // create namespace
 var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 
-SRCH.ListView = (function(){ 
-    /* privately scoped code */
+(function(context){
+	
+	var names = "",
+		specialties = "",
+		settings = {},
+		view_manager = {},
+		data_manager = {};
+		
+	view_manager.clear_input = function(clear) {
+		$(context.settings.inputID).val("");
+		if (clear) {
+			$(context.settings.inputID).focus();
+		}
+	}
+	
+	view_manager.on_initialize_complete = function() {
+		$(context.settings.results).fadeIn();
+	}
+	
+	
+	data_manager.initialize_data = function() {
+		$.getJSON(context.settings.url, function(data){
+            names = data.physicians;
+			specialties = data.specialties;
+			view_manager.on_initialize_complete();
+        });
+	}
+	
+	data_manager.parse_input = function() {
+		
+	}
+	
+	
+	context.init = function(options) {
+		context.settings = {
+			url : 'js/data.json',
+			inputID : '#input',
+			results : '#results'
+		};
+		
+		//initialize to empty text field
+		view_manager.clear_input(true);
+		
+		//establish data manager and retrieve json data
+		data_manager.initialize_data();
 
-    return { /* public shit */ 
+		//bind the keyup event, publish value
+		$('#input').keyup(function(){
+			var value = $('#input').val().toLowerCase();
 
-    } 
-
-}());
-
-
-SRCH.DataModel = (function(){ 
-    /* privately scoped code */
-
-    return { /* public shit */ 
-
-    } 
-
-}());
-
-
-SRCH.DataManager = (function(){
-   
-   
-   return {
-       get_data : function() {
-           
-       }
-   } 
-});
-
+		});
+	}
+	
+})(SRCH);
 
 
 $(document).ready(function() {
-	//initialize to empty text field
-	$("#input").focus().val("find some fucking shit");
-	
-	//setup lettering
-	$(".filterable a").lettering();
-	
-	//bind the keyup event, publish value
-	$('#input').keyup(function(){
-		var value = $('#input').val().toLowerCase();
-		
-	});
-
+	SRCH.init();
 });

@@ -1,0 +1,796 @@
+<html>
+<head>
+	<title>Web Services</title>
+
+    <script type="text/javascript" src="http://webmedia.med.cornell.edu/cmn/weillcornell/js/jquery.1.2.6.js"></script>
+    <script type="text/javascript" src="js/jquery_field_min.js"></script>
+
+	<script type="text/javascript" >    
+    	function go() {
+				var formData = "practiceIds="+$('select[id="practiceList"]').fieldArray();
+				
+				if (formData != null && formData.length > 0) {			
+					var url = "http://cms-vmdev.med.cornell.edu/cs/ContentServer/load_practice_physicians_json?"+formData;		
+					$("#webServiceUrl").html("<h4>JSON Web Service URL</h4><p>Click the following url to get the json:</p><p><a target=\"jsonWindow\" href=\"" 
+												+url+"\">" + url + "</a></p>");
+				 } else {
+				 	$("#webServiceUrl").html("You didn't pick a practice.");
+				 }
+				 
+    	}
+    	
+    </script>
+</head>
+<body>
+<h3>Get Weill Cornell Physician JSON By Practice</h3>
+
+<p>Pick one or more practices below to generate the json.</p>
+
+<form>
+<select id="practiceList" size="10" multiple>
+
+			<option name="	General Academic Pediatrics" value="1237904302005">	General Academic Pediatrics (1237904302005)</option>
+
+			<option name="72nd Street Medical Association" value="1226675614645">72nd Street Medical Association (1226675614645)</option>
+
+			<option name="Abdominal and Pelvic CT (East 61st Street)" value="1226675614659">Abdominal and Pelvic CT (East 61st Street) (1226675614659)</option>
+
+			<option name="Abdominal and Pelvic CT (East 70th Street)" value="1226675614673">Abdominal and Pelvic CT (East 70th Street) (1226675614673)</option>
+
+			<option name="Abdominal and Pelvic Imaging" value="1226675614685">Abdominal and Pelvic Imaging (1226675614685)</option>
+
+			<option name="Abdominal and Pelvic Imaging (East 61st Street)" value="1226675614695">Abdominal and Pelvic Imaging (East 61st Street) (1226675614695)</option>
+
+			<option name="Abdominal and Pelvic Imaging (East 70th Street)" value="1226675614711">Abdominal and Pelvic Imaging (East 70th Street) (1226675614711)</option>
+
+			<option name="Abdominal and Pelvic MRI (East 55th Street)" value="1226675614727">Abdominal and Pelvic MRI (East 55th Street) (1226675614727)</option>
+
+			<option name="Abdominal and Pelvic MRI (East 70th Street)" value="1226675614743">Abdominal and Pelvic MRI (East 70th Street) (1226675614743)</option>
+
+			<option name="Abdominal and Pelvic UltraSound (East 61st Street)" value="1226675614565">Abdominal and Pelvic UltraSound (East 61st Street) (1226675614565)</option>
+
+			<option name="Abdominal and Pelvic UltraSound (East 70th Street)" value="1226675614759">Abdominal and Pelvic UltraSound (East 70th Street) (1226675614759)</option>
+
+			<option name="Acoustic Neuroma Surgery" value="1226675614771">Acoustic Neuroma Surgery (1226675614771)</option>
+
+			<option name="Addiction/Payne Whitney Manhattan" value="1226675614797">Addiction/Payne Whitney Manhattan (1226675614797)</option>
+
+			<option name="Addiction/Payne Whitney Westchester" value="1226675614813">Addiction/Payne Whitney Westchester (1226675614813)</option>
+
+			<option name="Adolescent Development Program" value="1226675618689">Adolescent Development Program (1226675618689)</option>
+
+			<option name="Adult Services Clinic" value="1226675614853">Adult Services Clinic (1226675614853)</option>
+
+			<option name="Alberto Lacouis-Petruccelli, M.D." value="1226675614863">Alberto Lacouis-Petruccelli, M.D. (1226675614863)</option>
+
+			<option name="Alvin Katz, M.D." value="1226675614879">Alvin Katz, M.D. (1226675614879)</option>
+
+			<option name="Anesthesiology Research" value="1226675614925">Anesthesiology Research (1226675614925)</option>
+
+			<option name="Anne T. Carlon, M.D." value="1226675614943">Anne T. Carlon, M.D. (1226675614943)</option>
+
+			<option name="Anxiety and Mood Disorder/Payne Whitney Manhattan" value="1226675614957">Anxiety and Mood Disorder/Payne Whitney Manhattan (1226675614957)</option>
+
+			<option name="Anxiety and Mood Disorder/Payne Whitney Westchester" value="1226675614997">Anxiety and Mood Disorder/Payne Whitney Westchester (1226675614997)</option>
+
+			<option name="Anxiety/ Payne Whitney Manhattan" value="1226675614969">Anxiety/ Payne Whitney Manhattan (1226675614969)</option>
+
+			<option name="Anxiety/Payne Whitney Westchester" value="1226675614985">Anxiety/Payne Whitney Westchester (1226675614985)</option>
+
+			<option name="Attention Deficit/Hyperactivity Disorder (ADHD)/Payne Whitney Manhattan" value="1226675614825">Attention Deficit/Hyperactivity Disorder (ADHD)/Payne Whitney Manhattan (1226675614825)</option>
+
+			<option name="Attention Deficit/Hyperactivity Disorder (ADHD)/Payne Whitney Westchester" value="1226675614841">Attention Deficit/Hyperactivity Disorder (ADHD)/Payne Whitney Westchester (1226675614841)</option>
+
+			<option name="Attila Toth, M.D." value="1226675615009">Attila Toth, M.D. (1226675615009)</option>
+
+			<option name="Autopsy" value="1226675615025">Autopsy (1226675615025)</option>
+
+			<option name="BPH" value="1226675615147">BPH (1226675615147)</option>
+
+			<option name="Barbara H. Landreth, M.D." value="1226675615107">Barbara H. Landreth, M.D. (1226675615107)</option>
+
+			<option name="Barney J. Kenet, M.D." value="1226675615055">Barney J. Kenet, M.D. (1226675615055)</option>
+
+			<option name="Barry J. Hartman, M.D." value="1226675615069">Barry J. Hartman, M.D. (1226675615069)</option>
+
+			<option name="Bladder Cancer" value="1226675615095">Bladder Cancer (1226675615095)</option>
+
+			<option name="Blood Disorders" value="1226675615123">Blood Disorders (1226675615123)</option>
+
+			<option name="Bradley A. Connor, M.D." value="1226675615133">Bradley A. Connor, M.D. (1226675615133)</option>
+
+			<option name="Breast MRI (East 55th Street)" value="1226675615213">Breast MRI (East 55th Street) (1226675615213)</option>
+
+			<option name="Breast Pathology" value="1226675615175">Breast Pathology (1226675615175)</option>
+
+			<option name="Brian A. Aslami, M.D." value="1226675615191">Brian A. Aslami, M.D. (1226675615191)</option>
+
+			<option name="Brian R. Landzberg, M.D." value="1226675615203">Brian R. Landzberg, M.D. (1226675615203)</option>
+
+			<option name="Burns, Critical Care and Trauma" value="1226675615443">Burns, Critical Care and Trauma (1226675615443)</option>
+
+			<option name="CRMI-Psychology" value="1226675615971">CRMI-Psychology (1226675615971)</option>
+
+			<option name="Cardiac CT MR" value="1256301413229">Cardiac CT MR (1256301413229)</option>
+
+			<option name="Cardiac Catheterization" value="1226675615311">Cardiac Catheterization (1226675615311)</option>
+
+			<option name="Cardiac Graphics" value="1256301412849">Cardiac Graphics (1256301412849)</option>
+
+			<option name="Cardiac Prevention Center" value="1226675615337">Cardiac Prevention Center (1226675615337)</option>
+
+			<option name="Cardiac and Coronary CT (Screening)" value="1226675615327">Cardiac and Coronary CT (Screening) (1226675615327)</option>
+
+			<option name="Cardiology Associates" value="1226675615353">Cardiology Associates (1226675615353)</option>
+
+			<option name="Cardiovascular Pathophysiology" value="1226675615395">Cardiovascular Pathophysiology (1226675615395)</option>
+
+			<option name="Carl J. McDougall, M.D." value="1226675615589">Carl J. McDougall, M.D. (1226675615589)</option>
+
+			<option name="Cell and Developmental Biology (Research)" value="1226675615459">Cell and Developmental Biology (Research) (1226675615459)</option>
+
+			<option name="Center for Lymphoma and Myeloma" value="1226675617209">Center for Lymphoma and Myeloma (1226675617209)</option>
+
+			<option name="Center for Sleep Medicine" value="1226675619251">Center for Sleep Medicine (1226675619251)</option>
+
+			<option name="Center for Special Studies (HIV/AIDS)" value="1226675616009">Center for Special Studies (HIV/AIDS) (1226675616009)</option>
+
+			<option name="Center for the Performing Artist" value="1244205908977">Center for the Performing Artist (1244205908977)</option>
+
+			<option name="Chest CT" value="1226675615469">Chest CT (1226675615469)</option>
+
+			<option name="Chest CT for Early Detection of Lung Cancer (Screening)" value="1226675617193">Chest CT for Early Detection of Lung Cancer (Screening) (1226675617193)</option>
+
+			<option name="Chest Imaging" value="1226675615479">Chest Imaging (1226675615479)</option>
+
+			<option name="Chest Imaging (East 61st Street)" value="1226675615515">Chest Imaging (East 61st Street) (1226675615515)</option>
+
+			<option name="Chest Imaging (East 70th Street)" value="1226675615541">Chest Imaging (East 70th Street) (1226675615541)</option>
+
+			<option name="Chest X-Ray" value="1226675615489">Chest X-Ray (1226675615489)</option>
+
+			<option name="Chest and Cardiac MRI (East 55th Street)" value="1226675615411">Chest and Cardiac MRI (East 55th Street) (1226675615411)</option>
+
+			<option name="Chest and Cardiac MRI (East 70th Street)" value="1226675615427">Chest and Cardiac MRI (East 70th Street) (1226675615427)</option>
+
+			<option name="Child Protection" value="1226675615499">Child Protection (1226675615499)</option>
+
+			<option name="Child and Adolescent Psychiatry/Payne Whitney Manhattan" value="1226675615269">Child and Adolescent Psychiatry/Payne Whitney Manhattan (1226675615269)</option>
+
+			<option name="Child and Adolescent Psychiatry/Payne Whitney Westchester" value="1226675615281">Child and Adolescent Psychiatry/Payne Whitney Westchester (1226675615281)</option>
+
+			<option name="Clark Huang, M.D." value="1226675615603">Clark Huang, M.D. (1226675615603)</option>
+
+			<option name="Clinical Cardiology" value="1226675615619">Clinical Cardiology (1226675615619)</option>
+
+			<option name="Clinical Cardiology Starr 4" value="1256215636560">Clinical Cardiology Starr 4 (1256215636560)</option>
+
+			<option name="Clinical Research Center" value="1226675615635">Clinical Research Center (1226675615635)</option>
+
+			<option name="Colon and Rectal Surgery" value="1226675615867">Colon and Rectal Surgery (1226675615867)</option>
+
+			<option name="Colon and Rectal Surgery and Surgical Oncology" value="1239709737791">Colon and Rectal Surgery and Surgical Oncology (1239709737791)</option>
+
+			<option name="Comprehensive Epilepsy Center" value="1226675616473">Comprehensive Epilepsy Center (1226675616473)</option>
+
+			<option name="Cornell Medical Associates- East 68th Street" value="1226675614625">Cornell Medical Associates- East 68th Street (1226675614625)</option>
+
+			<option name="Cosmetic Dermatology" value="1226675615919">Cosmetic Dermatology (1226675615919)</option>
+
+			<option name="Couples and Marital Therapy/Payne Whitney Manhattan" value="1226675615937">Couples and Marital Therapy/Payne Whitney Manhattan (1226675615937)</option>
+
+			<option name="Couples and Marital Therapy/Payne Whitney Westchester" value="1226675615947">Couples and Marital Therapy/Payne Whitney Westchester (1226675615947)</option>
+
+			<option name="Craig H. Warschauer, M.D." value="1226675615957">Craig H. Warschauer, M.D. (1226675615957)</option>
+
+			<option name="Cytogenetics" value="1226675616067">Cytogenetics (1226675616067)</option>
+
+			<option name="Cytopathology" value="1226675616083">Cytopathology (1226675616083)</option>
+
+			<option name="Daniel A. Burton, MD" value="1226675616099">Daniel A. Burton, MD (1226675616099)</option>
+
+			<option name="Daniel M. Libby, M.D." value="1226675616221">Daniel M. Libby, M.D. (1226675616221)</option>
+
+			<option name="David J. Wolf, MD" value="1226675616109">David J. Wolf, MD (1226675616109)</option>
+
+			<option name="Department of Cardiothoracic Surgery" value="1226675616031">Department of Cardiothoracic Surgery (1226675616031)</option>
+
+			<option name="Department of Genetic Medicine (Pure Researchers)" value="1226675614615">Department of Genetic Medicine (Pure Researchers) (1226675614615)</option>
+
+			<option name="Dermatopathology" value="1226675616137">Dermatopathology (1226675616137)</option>
+
+			<option name="Desider J. Rothe, M.D." value="1226675616153">Desider J. Rothe, M.D. (1226675616153)</option>
+
+			<option name="Developmental Disorders/Payne Whitney Manhattan" value="1226675616167">Developmental Disorders/Payne Whitney Manhattan (1226675616167)</option>
+
+			<option name="Developmental Disorders/Payne Whitney Westchester" value="1226675616193">Developmental Disorders/Payne Whitney Westchester (1226675616193)</option>
+
+			<option name="Division of Endocrinology" value="1226675616423">Division of Endocrinology (1226675616423)</option>
+
+			<option name="Division of Hypertension" value="1226675616875">Division of Hypertension (1226675616875)</option>
+
+			<option name="Division of Stroke and Critical Care" value="1226675619341">Division of Stroke and Critical Care (1226675619341)</option>
+
+			<option name="Dr. Ann Beeder" value="1238072173981">Dr. Ann Beeder (1238072173981)</option>
+
+			<option name="ENT Plastic and Reconstructive Surgery" value="1226675616457">ENT Plastic and Reconstructive Surgery (1226675616457)</option>
+
+			<option name="Ear Surgery" value="1226675616237">Ear Surgery (1226675616237)</option>
+
+			<option name="East Side Physicians" value="1226675616269">East Side Physicians (1226675616269)</option>
+
+			<option name="East Side Women's Ob/Gyn Associates" value="1226675616253">East Side Women's Ob/Gyn Associates (1226675616253)</option>
+
+			<option name="Eating Disorders/Payne Whitney Manhattan" value="1226675616283">Eating Disorders/Payne Whitney Manhattan (1226675616283)</option>
+
+			<option name="Eating Disorders/Payne Whitney Westchester" value="1226675616299">Eating Disorders/Payne Whitney Westchester (1226675616299)</option>
+
+			<option name="Echocardiography" value="1226675616311">Echocardiography (1226675616311)</option>
+
+			<option name="Electrophysiology" value="1226675616367">Electrophysiology (1226675616367)</option>
+
+			<option name="Ellen Mellow, M.D." value="1226675616383">Ellen Mellow, M.D. (1226675616383)</option>
+
+			<option name="Emergency Medicine" value="1226675616393">Emergency Medicine (1226675616393)</option>
+
+			<option name="Emergency Radiology" value="1278507788213">Emergency Radiology (1278507788213)</option>
+
+			<option name="Employee Assistance Program" value="1226675616403">Employee Assistance Program (1226675616403)</option>
+
+			<option name="Employee Development Center" value="1226675616413">Employee Development Center (1226675616413)</option>
+
+			<option name="Endocrine Surgery" value="1226675616441">Endocrine Surgery (1226675616441)</option>
+
+			<option name="Ernst G. Bartsich, M.D." value="1226675616327">Ernst G. Bartsich, M.D. (1226675616327)</option>
+
+			<option name="Eugene J. Nowak, M.D." value="1226675616351">Eugene J. Nowak, M.D. (1226675616351)</option>
+
+			<option name="Family and Marital Counseling/Payne Whitney Manhattan" value="1226675616495">Family and Marital Counseling/Payne Whitney Manhattan (1226675616495)</option>
+
+			<option name="Family and Marital Counseling/Payne Whitney Westchester" value="1226675616511">Family and Marital Counseling/Payne Whitney Westchester (1226675616511)</option>
+
+			<option name="Female Urology/Urogynecology" value="1226675619551">Female Urology/Urogynecology (1226675619551)</option>
+
+			<option name="Francesco Rubino Admin Practice" value="1227568377579">Francesco Rubino Admin Practice (1227568377579)</option>
+
+			<option name="Frank M. Iacovone, M.D." value="1226675616523">Frank M. Iacovone, M.D. (1226675616523)</option>
+
+			<option name="GI Metabolic Surgery" value="1226675616677">GI Metabolic Surgery (1226675616677)</option>
+
+			<option name="Gastro-Intestinal Barium Studies" value="1226675614575">Gastro-Intestinal Barium Studies (1226675614575)</option>
+
+			<option name="Gastroesophageal Reflux and Motility Disorders Center" value="1265723968982">Gastroesophageal Reflux and Motility Disorders Center (1265723968982)</option>
+
+			<option name="General Adult Psychiatry/Payne Whitney Manhattan" value="1226675616613">General Adult Psychiatry/Payne Whitney Manhattan (1226675616613)</option>
+
+			<option name="General Adult Psychiatry/Payne Whitney Westchester" value="1226675616627">General Adult Psychiatry/Payne Whitney Westchester (1226675616627)</option>
+
+			<option name="General Dermatology" value="1226675616553">General Dermatology (1226675616553)</option>
+
+			<option name="General Neurology" value="1226675617787">General Neurology (1226675617787)</option>
+
+			<option name="General Obstetrics and Gynecology" value="1226675618073">General Obstetrics and Gynecology (1226675618073)</option>
+
+			<option name="General Otolaryngology" value="1226675616571">General Otolaryngology (1226675616571)</option>
+
+			<option name="General Pediatrics" value="1226675618299">General Pediatrics (1226675618299)</option>
+
+			<option name="General Pediatrics - Long Island City Community Practice" value="1237811959275">General Pediatrics - Long Island City Community Practice (1237811959275)</option>
+
+			<option name="General Urology" value="1226675616587">General Urology (1226675616587)</option>
+
+			<option name="Geriatric Psychiatry/Payne Whitney Manhattan" value="1226675614553">Geriatric Psychiatry/Payne Whitney Manhattan (1226675614553)</option>
+
+			<option name="Geriatric Psychiatry/Payne Whitney Westchester" value="1226675616665">Geriatric Psychiatry/Payne Whitney Westchester (1226675616665)</option>
+
+			<option name="Geriatrics" value="1226675616655">Geriatrics (1226675616655)</option>
+
+			<option name="Greenberg Division of Cardiology" value="1226675615369">Greenberg Division of Cardiology (1226675615369)</option>
+
+			<option name="Guy Minoli, DDS" value="1226675616709">Guy Minoli, DDS (1226675616709)</option>
+
+			<option name="Gynecologic Pathology" value="1226675616723">Gynecologic Pathology (1226675616723)</option>
+
+			<option name="Harvey H. Jay, M.D." value="1226675616755">Harvey H. Jay, M.D. (1226675616755)</option>
+
+			<option name="Head and Neck Surgery" value="1226675616859">Head and Neck Surgery (1226675616859)</option>
+
+			<option name="Headache Center" value="1226675616769">Headache Center (1226675616769)</option>
+
+			<option name="Heart Failure" value="1256301413301">Heart Failure (1256301413301)</option>
+
+			<option name="Hematology and Vascular Disease program" value="1226675616811">Hematology and Vascular Disease program (1226675616811)</option>
+
+			<option name="Hematopathology" value="1226675616795">Hematopathology (1226675616795)</option>
+
+			<option name="Hepatobiliary Surgery and Liver Transplantation" value="1284638180936">Hepatobiliary Surgery and Liver Transplantation (1284638180936)</option>
+
+			<option name="Hip Center" value="1226675616843">Hip Center (1226675616843)</option>
+
+			<option name="Immunopathology" value="1226675616923">Immunopathology (1226675616923)</option>
+
+			<option name="Impotence" value="1226675616939">Impotence (1226675616939)</option>
+
+			<option name="Incontinence" value="1226675619567">Incontinence (1226675619567)</option>
+
+			<option name="Inflammatory Bowel Disease Center" value="1226675616891">Inflammatory Bowel Disease Center (1226675616891)</option>
+
+			<option name="Interventional Neuroradiology" value="1226675617867">Interventional Neuroradiology (1226675617867)</option>
+
+			<option name="Interventional Radiology - Cardiovascular" value="1226675616963">Interventional Radiology - Cardiovascular (1226675616963)</option>
+
+			<option name="Interventional Radiology - Neurological" value="1226675617655">Interventional Radiology - Neurological (1226675617655)</option>
+
+			<option name="Iris Cantor Women's Health Center" value="1226675615293">Iris Cantor Women's Health Center (1226675615293)</option>
+
+			<option name="Irving Sherwood Wright Center on Aging" value="1226675619779">Irving Sherwood Wright Center on Aging (1226675619779)</option>
+
+			<option name="Jacqueline W. Muller, M.D." value="1226675616979">Jacqueline W. Muller, M.D. (1226675616979)</option>
+
+			<option name="James S. Schutz, M.D." value="1226675616995">James S. Schutz, M.D. (1226675616995)</option>
+
+			<option name="Jay Monahan Center for Gastrointestinal Health" value="1226675617453">Jay Monahan Center for Gastrointestinal Health (1226675617453)</option>
+
+			<option name="Jean-Francois Eid, M.D." value="1226675617053">Jean-Francois Eid, M.D. (1226675617053)</option>
+
+			<option name="Jeffrey D. Fisher, M.D." value="1226675617023">Jeffrey D. Fisher, M.D. (1226675617023)</option>
+
+			<option name="Jerry Huo, M.D." value="1226675617037">Jerry Huo, M.D. (1226675617037)</option>
+
+			<option name="Jonathon Scheidt Admin Practice" value="1227568377579">Jonathon Scheidt Admin Practice (1227568377579)</option>
+
+			<option name="Judith Jaffe Multiple Sclerosis Center" value="1226675617551">Judith Jaffe Multiple Sclerosis Center (1226675617551)</option>
+
+			<option name="Julian Decter, M.D." value="1226675617009">Julian Decter, M.D. (1226675617009)</option>
+
+			<option name="Kidney Cancer" value="1226675617083">Kidney Cancer (1226675617083)</option>
+
+			<option name="Kidney Stones" value="1226675617095">Kidney Stones (1226675617095)</option>
+
+			<option name="Kidney and Pancreas Transplantation" value="1286744221717">Kidney and Pancreas Transplantation (1286744221717)</option>
+
+			<option name="Laboratory Medicine" value="1226675617117">Laboratory Medicine (1226675617117)</option>
+
+			<option name="Laboratory of Alzheimer's Disease Neurobiology" value="1226675614895">Laboratory of Alzheimer's Disease Neurobiology (1226675614895)</option>
+
+			<option name="Laboratory of Clinical Neurophysiology" value="1226675617723">Laboratory of Clinical Neurophysiology (1226675617723)</option>
+
+			<option name="Laboratory of Molecular Neuroscience" value="1226675617403">Laboratory of Molecular Neuroscience (1226675617403)</option>
+
+			<option name="Laparoscopy and Bariatric Surgery" value="1226675615039">Laparoscopy and Bariatric Surgery (1226675615039)</option>
+
+			<option name="Laser Vision Correction Center" value="1226675617133">Laser Vision Correction Center (1226675617133)</option>
+
+			<option name="Lawrence L. Scharer, M.D." value="1226675617165">Lawrence L. Scharer, M.D. (1226675617165)</option>
+
+			<option name="Lawrence S. Reed, M.D." value="1226675617179">Lawrence S. Reed, M.D. (1226675617179)</option>
+
+			<option name="Leukemia and bone Marrow Failure Program" value="1226675617149">Leukemia and bone Marrow Failure Program (1226675617149)</option>
+
+			<option name="MRI" value="1226675617509">MRI (1226675617509)</option>
+
+			<option name="MRI (East 55th Street)" value="1226675617519">MRI (East 55th Street) (1226675617519)</option>
+
+			<option name="MRI (East 70th Street)" value="1226675617535">MRI (East 70th Street) (1226675617535)</option>
+
+			<option name="Male Infertility" value="1226675617237">Male Infertility (1226675617237)</option>
+
+			<option name="Mammography (see Women's Imaging)" value="1226675614585">Mammography (see Women's Imaging) (1226675614585)</option>
+
+			<option name="Manhattan Cardiac Medical" value="1226675617249">Manhattan Cardiac Medical (1226675617249)</option>
+
+			<option name="Marc R. Avram, M.D." value="1226675617283">Marc R. Avram, M.D. (1226675617283)</option>
+
+			<option name="Medical Associates of New York- Cardiovascular Diagnostics" value="1226675617297">Medical Associates of New York- Cardiovascular Diagnostics (1226675617297)</option>
+
+			<option name="Medical Ethics" value="1226675617311">Medical Ethics (1226675617311)</option>
+
+			<option name="Medical Oncology/Solid Tumor Program" value="1226675619281">Medical Oncology/Solid Tumor Program (1226675619281)</option>
+
+			<option name="Memory Disorders Program" value="1226675617321">Memory Disorders Program (1226675617321)</option>
+
+			<option name="Meyer N. Solny, M.D." value="1226675617345">Meyer N. Solny, M.D. (1226675617345)</option>
+
+			<option name="Microbiology and Immunology Research" value="1226675617361">Microbiology and Immunology Research (1226675617361)</option>
+
+			<option name="Midtown Center for Treatment and Research" value="1226675617371">Midtown Center for Treatment and Research (1226675617371)</option>
+
+			<option name="Minimally Invasive Surgery Endourology" value="1226675617387">Minimally Invasive Surgery Endourology (1226675617387)</option>
+
+			<option name="Mitchell A. Kline, M.D." value="1226675617225">Mitchell A. Kline, M.D. (1226675617225)</option>
+
+			<option name="Mohs Micrographic and Dermatologic Surgery" value="1226675616119">Mohs Micrographic and Dermatologic Surgery (1226675616119)</option>
+
+			<option name="Molecular Genetics of  Neurobiology & Neurological Diseases" value="1226675617423">Molecular Genetics of  Neurobiology & Neurological Diseases (1226675617423)</option>
+
+			<option name="Molecular Hematopathology" value="1226675617437">Molecular Hematopathology (1226675617437)</option>
+
+			<option name="Mood Disorder/Payne Whitney Manhattan" value="1226675617469">Mood Disorder/Payne Whitney Manhattan (1226675617469)</option>
+
+			<option name="Mood Disorder/Payne Whitney Westchester" value="1226675617481">Mood Disorder/Payne Whitney Westchester (1226675617481)</option>
+
+			<option name="Movement Disorders Program" value="1226675617587">Movement Disorders Program (1226675617587)</option>
+
+			<option name="Multiple Sclerosis Research Center" value="1226675617577">Multiple Sclerosis Research Center (1226675617577)</option>
+
+			<option name="Musculoskeletal Radiology" value="1252928868991">Musculoskeletal Radiology (1252928868991)</option>
+
+			<option name="NY Downtown Colon and Rectal Surger" value="1268918724996">NY Downtown Colon and Rectal Surger (1268918724996)</option>
+
+			<option name="NY Otolaryngology PLLC" value="1226675618043">NY Otolaryngology PLLC (1226675618043)</option>
+
+			<option name="Neil S. Sadick, M.D." value="1226675617943">Neil S. Sadick, M.D. (1226675617943)</option>
+
+			<option name="Neill S. Cohen" value="1226675617957">Neill S. Cohen (1226675617957)</option>
+
+			<option name="Neuro-Ophthalmology" value="1226675617699">Neuro-Ophthalmology (1226675617699)</option>
+
+			<option name="Neurobiology (Research)" value="1226675617751">Neurobiology (Research) (1226675617751)</option>
+
+			<option name="Neurodegenerative Disorders Laboratory" value="1226675617767">Neurodegenerative Disorders Laboratory (1226675617767)</option>
+
+			<option name="Neurologic & Head and Neck Imaging" value="1226675617777">Neurologic & Head and Neck Imaging (1226675617777)</option>
+
+			<option name="Neurologic and Spine CT (East 61st Street)" value="1226675617603">Neurologic and Spine CT (East 61st Street) (1226675617603)</option>
+
+			<option name="Neurologic and Spine CT (East 70th Street)" value="1226675617613">Neurologic and Spine CT (East 70th Street) (1226675617613)</option>
+
+			<option name="Neurologic and Spine Imaging (East 61st Street)" value="1226675617623">Neurologic and Spine Imaging (East 61st Street) (1226675617623)</option>
+
+			<option name="Neurologic and Spine Imaging (East 70th Street)" value="1226675617639">Neurologic and Spine Imaging (East 70th Street) (1226675617639)</option>
+
+			<option name="Neurologic and Spine MRI (East 55th Street)" value="1226675617669">Neurologic and Spine MRI (East 55th Street) (1226675617669)</option>
+
+			<option name="Neurologic and Spine MRI (East 70th Street)" value="1226675617685">Neurologic and Spine MRI (East 70th Street) (1226675617685)</option>
+
+			<option name="Neurological Surgery" value="1226675617881">Neurological Surgery (1226675617881)</option>
+
+			<option name="Neuromuscular Center" value="1226675617803">Neuromuscular Center (1226675617803)</option>
+
+			<option name="Neuropathology" value="1226675617815">Neuropathology (1226675617815)</option>
+
+			<option name="Neuropsychiatric Disorders/Payne Whitney Manhattan" value="1226675614541">Neuropsychiatric Disorders/Payne Whitney Manhattan (1226675614541)</option>
+
+			<option name="Neuropsychiatric Disorders/Payne Whitney Westchester" value="1226675617739">Neuropsychiatric Disorders/Payne Whitney Westchester (1226675617739)</option>
+
+			<option name="Neuropsychiatry/Neurobehavioral Disorders" value="1226675617847">Neuropsychiatry/Neurobehavioral Disorders (1226675617847)</option>
+
+			<option name="Neuropsychology" value="1226675617831">Neuropsychology (1226675617831)</option>
+
+			<option name="Neurovascular Ultrasound Lab" value="1226675617897">Neurovascular Ultrasound Lab (1226675617897)</option>
+
+			<option name="New York Cardiology Associates" value="1226675618001">New York Cardiology Associates (1226675618001)</option>
+
+			<option name="New York Downtown Radiology Group" value="1281531511168">New York Downtown Radiology Group (1281531511168)</option>
+
+			<option name="New York Physicians LLP" value="1226675618057">New York Physicians LLP (1226675618057)</option>
+
+			<option name="New York-Cornell Radiology Diagnostic Imaging Center" value="1226675618027">New York-Cornell Radiology Diagnostic Imaging Center (1226675618027)</option>
+
+			<option name="New York-Cornell Radiology Diagnostic Imaging Center (East 70th Street)" value="1226675616205">New York-Cornell Radiology Diagnostic Imaging Center (East 70th Street) (1226675616205)</option>
+
+			<option name="Newborn Medicine" value="1226675617911">Newborn Medicine (1226675617911)</option>
+
+			<option name="Non-surgical Foot and Ankle Service" value="1238592673906">Non-surgical Foot and Ankle Service (1238592673906)</option>
+
+			<option name="Norman M. Magid, M.D." value="1226675617927">Norman M. Magid, M.D. (1226675617927)</option>
+
+			<option name="Nuclear Cardiology" value="1226675617969">Nuclear Cardiology (1226675617969)</option>
+
+			<option name="Nuclear Medicine" value="1226675617985">Nuclear Medicine (1226675617985)</option>
+
+			<option name="Nuclear Medicine - Bone Densitometry" value="1226675614595">Nuclear Medicine - Bone Densitometry (1226675614595)</option>
+
+			<option name="Nuclear Medicine - Thyroid Imaging and Treatment" value="1226675619491">Nuclear Medicine - Thyroid Imaging and Treatment (1226675619491)</option>
+
+			<option name="Obstetrics and Gynecology (61st Street)" value="1226675618089">Obstetrics and Gynecology (61st Street) (1226675618089)</option>
+
+			<option name="Obstetrics and Gynecology (68th Street, J-130)" value="1226675618105">Obstetrics and Gynecology (68th Street, J-130) (1226675618105)</option>
+
+			<option name="Obstetrics and Gynecology (72nd Street)" value="1226675618131">Obstetrics and Gynecology (72nd Street) (1226675618131)</option>
+
+			<option name="Obstetrics and Gynecology/Maternal Fetal Medicine" value="1226675618121">Obstetrics and Gynecology/Maternal Fetal Medicine (1226675618121)</option>
+
+			<option name="Obstetrics and Gynecology/Maternal-Fetal Medicine" value="1226675618147">Obstetrics and Gynecology/Maternal-Fetal Medicine (1226675618147)</option>
+
+			<option name="Office of Geriatric Research" value="1226675618163">Office of Geriatric Research (1226675618163)</option>
+
+			<option name="Ophthalmic Oncology Center" value="1226675618183">Ophthalmic Oncology Center (1226675618183)</option>
+
+			<option name="Oral & Maxillofacial Surgery" value="1226675618213">Oral & Maxillofacial Surgery (1226675618213)</option>
+
+			<option name="Orthopaedic Surgery" value="1226675618229">Orthopaedic Surgery (1226675618229)</option>
+
+			<option name="Pain Medicine Center" value="1226675618245">Pain Medicine Center (1226675618245)</option>
+
+			<option name="Parkinson's Disease & Movement Disorders Institute" value="1226675617493">Parkinson's Disease & Movement Disorders Institute (1226675617493)</option>
+
+			<option name="Parkinson's Institute" value="1226675618261">Parkinson's Institute (1226675618261)</option>
+
+			<option name="Pathology (Research)" value="1226675618277">Pathology (Research) (1226675618277)</option>
+
+			<option name="Payne Whitney Women's Program" value="1226675618881">Payne Whitney Women's Program (1226675618881)</option>
+
+			<option name="Pediatric  Research" value="1226675618333">Pediatric  Research (1226675618333)</option>
+
+			<option name="Pediatric Allergy and Immunology" value="1274100454170">Pediatric Allergy and Immunology (1274100454170)</option>
+
+			<option name="Pediatric Cardiology" value="1226675618343">Pediatric Cardiology (1226675618343)</option>
+
+			<option name="Pediatric Child Development" value="1226675618393">Pediatric Child Development (1226675618393)</option>
+
+			<option name="Pediatric Critical Care" value="1226675618359">Pediatric Critical Care (1226675618359)</option>
+
+			<option name="Pediatric Dental Medicine" value="1237466948730">Pediatric Dental Medicine (1237466948730)</option>
+
+			<option name="Pediatric Dermatology" value="1226675618375">Pediatric Dermatology (1226675618375)</option>
+
+			<option name="Pediatric Emergency Medicine" value="1226675618287">Pediatric Emergency Medicine (1226675618287)</option>
+
+			<option name="Pediatric Endocrinology" value="1226675618409">Pediatric Endocrinology (1226675618409)</option>
+
+			<option name="Pediatric Gastroenterology and Nutrition" value="1226675618441">Pediatric Gastroenterology and Nutrition (1226675618441)</option>
+
+			<option name="Pediatric Hematology/Oncology" value="1226675618457">Pediatric Hematology/Oncology (1226675618457)</option>
+
+			<option name="Pediatric Infectious Diseases" value="1226675618473">Pediatric Infectious Diseases (1226675618473)</option>
+
+			<option name="Pediatric Medical Genetics" value="1226675616597">Pediatric Medical Genetics (1226675616597)</option>
+
+			<option name="Pediatric Nephrology" value="1226675618499">Pediatric Nephrology (1226675618499)</option>
+
+			<option name="Pediatric Neurology" value="1226675618515">Pediatric Neurology (1226675618515)</option>
+
+			<option name="Pediatric Otolaryngology" value="1226675618425">Pediatric Otolaryngology (1226675618425)</option>
+
+			<option name="Pediatric Pulmonology" value="1274100454065">Pediatric Pulmonology (1274100454065)</option>
+
+			<option name="Pediatric Pulmonology, Allergy, and Immunology" value="1226675618533">Pediatric Pulmonology, Allergy, and Immunology (1226675618533)</option>
+
+			<option name="Pediatric Radiology" value="1226675618549">Pediatric Radiology (1226675618549)</option>
+
+			<option name="Pediatric Surgery" value="1226675618563">Pediatric Surgery (1226675618563)</option>
+
+			<option name="Pediatric Urology" value="1226675618579">Pediatric Urology (1226675618579)</option>
+
+			<option name="Pediatric Urology, Westchester" value="1226675618595">Pediatric Urology, Westchester (1226675618595)</option>
+
+			<option name="Pediatrics" value="1226675618315">Pediatrics (1226675618315)</option>
+
+			<option name="Perinatal and Placental Pathology" value="1226675618609">Perinatal and Placental Pathology (1226675618609)</option>
+
+			<option name="Peripheral Neuropathy" value="1226675618625">Peripheral Neuropathy (1226675618625)</option>
+
+			<option name="Personality Disorders/Payne Whitney Manhattan" value="1226675618641">Personality Disorders/Payne Whitney Manhattan (1226675618641)</option>
+
+			<option name="Personality Disorders/Payne Whitney Westchester" value="1226675618667">Personality Disorders/Payne Whitney Westchester (1226675618667)</option>
+
+			<option name="Personalized Medicine" value="1234187976203">Personalized Medicine (1234187976203)</option>
+
+			<option name="Peter S. Halperin, M.D." value="1226675616739">Peter S. Halperin, M.D. (1226675616739)</option>
+
+			<option name="Pharmacology (Pure Researchers)" value="1226675618705">Pharmacology (Pure Researchers) (1226675618705)</option>
+
+			<option name="Plastic and Reconstructive Surgery" value="1226675618751">Plastic and Reconstructive Surgery (1226675618751)</option>
+
+			<option name="Post & Seiler, M.D. PC" value="1226675618767">Post & Seiler, M.D. PC (1226675618767)</option>
+
+			<option name="Practice1 Acceptance Testing" value="1227568377579">Practice1 Acceptance Testing (1227568377579)</option>
+
+			<option name="Prostate Cancer" value="1226675618829">Prostate Cancer (1226675618829)</option>
+
+			<option name="Psychology/Payne Whitney Manhattan" value="1226675618715">Psychology/Payne Whitney Manhattan (1226675618715)</option>
+
+			<option name="Psychology/Payne Whitney Westchester" value="1226675618725">Psychology/Payne Whitney Westchester (1226675618725)</option>
+
+			<option name="Psychopharmacology/Payne Whitney Manhattan" value="1226675618781">Psychopharmacology/Payne Whitney Manhattan (1226675618781)</option>
+
+			<option name="Psychopharmacology/Payne Whitney Westchester" value="1226675618817">Psychopharmacology/Payne Whitney Westchester (1226675618817)</option>
+
+			<option name="Psychotherapy/Payne Whitney Manhattan" value="1226675618841">Psychotherapy/Payne Whitney Manhattan (1226675618841)</option>
+
+			<option name="Psychotherapy/Payne Whitney Westchester" value="1226675618853">Psychotherapy/Payne Whitney Westchester (1226675618853)</option>
+
+			<option name="Radiation Oncology" value="1226675618893">Radiation Oncology (1226675618893)</option>
+
+			<option name="Radiology Research" value="1226675618901">Radiology Research (1226675618901)</option>
+
+			<option name="Radoslav Jovanovic, M.D." value="1226675617069">Radoslav Jovanovic, M.D. (1226675617069)</option>
+
+			<option name="Rehabilitation Medicine" value="1226675618735">Rehabilitation Medicine (1226675618735)</option>
+
+			<option name="Renal Pathology" value="1226675618925">Renal Pathology (1226675618925)</option>
+
+			<option name="Reproductive Medicine" value="1226675618951">Reproductive Medicine (1226675618951)</option>
+
+			<option name="Richard S. Muchnick, M.D." value="1226675619047">Richard S. Muchnick, M.D. (1226675619047)</option>
+
+			<option name="Robert A. Schulman, M.D." value="1226675618909">Robert A. Schulman, M.D. (1226675618909)</option>
+
+			<option name="Robert B. Granet, M.D." value="1226675618995">Robert B. Granet, M.D. (1226675618995)</option>
+
+			<option name="Robert G. Schwager, M.D." value="1226675619005">Robert G. Schwager, M.D. (1226675619005)</option>
+
+			<option name="Robert M. Sorin, DMD" value="1226675618981">Robert M. Sorin, DMD (1226675618981)</option>
+
+			<option name="Roberts IBS Center" value="1256648127182">Roberts IBS Center (1256648127182)</option>
+
+			<option name="Ronald M. Caplan, M.D." value="1226675618967">Ronald M. Caplan, M.D. (1226675618967)</option>
+
+			<option name="Schizophrenia" value="1226675619101">Schizophrenia (1226675619101)</option>
+
+			<option name="Schizophrenia/Psychotic Disorders/Payne Whitney Manhattan" value="1226675619111">Schizophrenia/Psychotic Disorders/Payne Whitney Manhattan (1226675619111)</option>
+
+			<option name="Schizophrenia/Psychotic Disorders/Payne Whitney Westchester" value="1226675619127">Schizophrenia/Psychotic Disorders/Payne Whitney Westchester (1226675619127)</option>
+
+			<option name="Sexual Medicine Program" value="1226675619579">Sexual Medicine Program (1226675619579)</option>
+
+			<option name="Sexual Medicine and Sex Therapy/Payne Whitney Manhattan" value="1226675619147">Sexual Medicine and Sex Therapy/Payne Whitney Manhattan (1226675619147)</option>
+
+			<option name="Sexual Medicine and Sex Therapy/Payne Whitney Westchester" value="1226675619157">Sexual Medicine and Sex Therapy/Payne Whitney Westchester (1226675619157)</option>
+
+			<option name="Sheryl D. Clark, M.D." value="1226675619167">Sheryl D. Clark, M.D. (1226675619167)</option>
+
+			<option name="Sinus Surgery" value="1226675619181">Sinus Surgery (1226675619181)</option>
+
+			<option name="Sleep Apnea" value="1226675619235">Sleep Apnea (1226675619235)</option>
+
+			<option name="Social Work/Payne Whitney Manhattan" value="1226675619401">Social Work/Payne Whitney Manhattan (1226675619401)</option>
+
+			<option name="Social Work/Payne Whitney Westchester" value="1226675619411">Social Work/Payne Whitney Westchester (1226675619411)</option>
+
+			<option name="Sonja Olsen Admin Practice" value="1227568377579">Sonja Olsen Admin Practice (1227568377579)</option>
+
+			<option name="Sound Shore Cardiology PC" value="1226675619297">Sound Shore Cardiology PC (1226675619297)</option>
+
+			<option name="Stem Cell Transplantation Program" value="1226675619313">Stem Cell Transplantation Program (1226675619313)</option>
+
+			<option name="Stem Cells" value="1234877595925">Stem Cells (1234877595925)</option>
+
+			<option name="Stephanie A. Brandt, M.D." value="1226675619061">Stephanie A. Brandt, M.D. (1226675619061)</option>
+
+			<option name="Steven R. Erle, MD, PC" value="1226675619329">Steven R. Erle, MD, PC (1226675619329)</option>
+
+			<option name="Stroke and Critical Care Research" value="1226675619353">Stroke and Critical Care Research (1226675619353)</option>
+
+			<option name="Subhash C. Gulati, M.D." value="1226675619075">Subhash C. Gulati, M.D. (1226675619075)</option>
+
+			<option name="Surgical Oncology" value="1226675616695">Surgical Oncology (1226675616695)</option>
+
+			<option name="Surgical Pathology" value="1226675619361">Surgical Pathology (1226675619361)</option>
+
+			<option name="Suzanne L. Frye, M.D." value="1226675619387">Suzanne L. Frye, M.D. (1226675619387)</option>
+
+			<option name="System Neuroscience Research" value="1226675619421">System Neuroscience Research (1226675619421)</option>
+
+			<option name="TEMP" value="1226675619431">TEMP (1226675619431)</option>
+
+			<option name="Test" value="1226675614525">Test (1226675614525)</option>
+
+			<option name="Testis Cancer" value="1226675619447">Testis Cancer (1226675619447)</option>
+
+			<option name="The Breast Center" value="1226675615239">The Breast Center (1226675615239)</option>
+
+			<option name="The Center for the Study of Hepatitis C" value="1226675616827">The Center for the Study of Hepatitis C (1226675616827)</option>
+
+			<option name="The Division of Gastroenterology & Hepatology" value="1226675616537">The Division of Gastroenterology & Hepatology (1226675616537)</option>
+
+			<option name="The Gynecologic Oncology Clinical Program" value="1235480140112">The Gynecologic Oncology Clinical Program (1235480140112)</option>
+
+			<option name="The Rogosin Institute" value="1226675619019">The Rogosin Institute (1226675619019)</option>
+
+			<option name="The Rogosin Institute- Comprehensive Lipid Control Center" value="1226675619033">The Rogosin Institute- Comprehensive Lipid Control Center (1226675619033)</option>
+
+			<option name="Thomas P. McGovern, M.D." value="1226675619455">Thomas P. McGovern, M.D. (1226675619455)</option>
+
+			<option name="Thoracic Division" value="1226675619471">Thoracic Division (1226675619471)</option>
+
+			<option name="Transcranial Magnetic Stimulation (TMS)" value="1251895525558">Transcranial Magnetic Stimulation (TMS) (1251895525558)</option>
+
+			<option name="Transplantation Surgery" value="1226675619501">Transplantation Surgery (1226675619501)</option>
+
+			<option name="Trauma Services" value="1226675619527">Trauma Services (1226675619527)</option>
+
+			<option name="Urinary Tract Imaging" value="1226675614605">Urinary Tract Imaging (1226675614605)</option>
+
+			<option name="Urocenter of New York" value="1226675619537">Urocenter of New York (1226675619537)</option>
+
+			<option name="Vascular Surgery" value="1226675619595">Vascular Surgery (1226675619595)</option>
+
+			<option name="Voice and Speech Disorders" value="1226675619611">Voice and Speech Disorders (1226675619611)</option>
+
+			<option name="Wayne G. Whitmore, M.D." value="1226675619643">Wayne G. Whitmore, M.D. (1226675619643)</option>
+
+			<option name="Weill Cornell Anesthesiology Associates" value="1226675614909">Weill Cornell Anesthesiology Associates (1226675614909)</option>
+
+			<option name="Weill Cornell Breast Center" value="1226675615159">Weill Cornell Breast Center (1226675615159)</option>
+
+			<option name="Weill Cornell Cancer Care and Blood Disorders" value="1226675619725">Weill Cornell Cancer Care and Blood Disorders (1226675619725)</option>
+
+			<option name="Weill Cornell Eye Associates" value="1226675618197">Weill Cornell Eye Associates (1226675618197)</option>
+
+			<option name="Weill Cornell Imaging at New York-Presbyterian" value="1226675619627">Weill Cornell Imaging at New York-Presbyterian (1226675619627)</option>
+
+			<option name="Weill Cornell Internal Medicine Associates (CIMA)" value="1226675615557">Weill Cornell Internal Medicine Associates (CIMA) (1226675615557)</option>
+
+			<option name="Weill Cornell Internal Medicine Associates (CIMA), Long Island City Community Practice" value="1226675615573">Weill Cornell Internal Medicine Associates (CIMA), Long Island City Community Practice (1226675615573)</option>
+
+			<option name="Weill Cornell Internal Medicine at Wright" value="1254483547114">Weill Cornell Internal Medicine at Wright (1254483547114)</option>
+
+			<option name="Weill Cornell MRI" value="1226675615893">Weill Cornell MRI (1226675615893)</option>
+
+			<option name="Weill Cornell MRI (East 55th Street)" value="1226675615903">Weill Cornell MRI (East 55th Street) (1226675615903)</option>
+
+			<option name="Weill Cornell Medical Associates" value="1226675615675">Weill Cornell Medical Associates (1226675615675)</option>
+
+			<option name="Weill Cornell Medical Associates East Side- Obstetrics and Gynecology" value="1226675615711">Weill Cornell Medical Associates East Side- Obstetrics and Gynecology (1226675615711)</option>
+
+			<option name="Weill Cornell Medical Associates East Side- Pediatrics" value="1226675615727">Weill Cornell Medical Associates East Side- Pediatrics (1226675615727)</option>
+
+			<option name="Weill Cornell Medical Associates West Side- Internal Medicine" value="1226675615787">Weill Cornell Medical Associates West Side- Internal Medicine (1226675615787)</option>
+
+			<option name="Weill Cornell Medical Associates West Side- Obstetrics and Gynecology" value="1226675615803">Weill Cornell Medical Associates West Side- Obstetrics and Gynecology (1226675615803)</option>
+
+			<option name="Weill Cornell Medical Associates West Side- Pediatrics" value="1226675615819">Weill Cornell Medical Associates West Side- Pediatrics (1226675615819)</option>
+
+			<option name="Weill Cornell Medical Associates- East 72nd Street" value="1226675615749">Weill Cornell Medical Associates- East 72nd Street (1226675615749)</option>
+
+			<option name="Weill Cornell Medical Associates- East Side" value="1226675615653">Weill Cornell Medical Associates- East Side (1226675615653)</option>
+
+			<option name="Weill Cornell Medical Associates- West Side" value="1226675615765">Weill Cornell Medical Associates- West Side (1226675615765)</option>
+
+			<option name="Weill Cornell Medical Imaging" value="1226675615835">Weill Cornell Medical Imaging (1226675615835)</option>
+
+			<option name="Weill Cornell Medical Imaging (East 61st Street)" value="1226675615851">Weill Cornell Medical Imaging (East 61st Street) (1226675615851)</option>
+
+			<option name="Weill Cornell Nephrology" value="1226675619741">Weill Cornell Nephrology (1226675619741)</option>
+
+			<option name="Weill Cornell Pulmonary Associates" value="1226675618865">Weill Cornell Pulmonary Associates (1226675618865)</option>
+
+			<option name="Weill Cornell Radiation Oncology" value="1226675615979">Weill Cornell Radiation Oncology (1226675615979)</option>
+
+			<option name="Weill Cornell Solid Tumor Oncology Practice" value="1285676903423">Weill Cornell Solid Tumor Oncology Practice (1285676903423)</option>
+
+			<option name="Weill Cornell Surgical Associates" value="1226675615993">Weill Cornell Surgical Associates (1226675615993)</option>
+
+			<option name="Weill Cornell Travel Medicine" value="1226675616907">Weill Cornell Travel Medicine (1226675616907)</option>
+
+			<option name="Weill Cornell Vascular" value="1226675616051">Weill Cornell Vascular (1226675616051)</option>
+
+			<option name="William D. Walden, M.D." value="1226675619795">William D. Walden, M.D. (1226675619795)</option>
+
+			<option name="Womakk" value="1226675619755">Womakk (1226675619755)</option>
+
+			<option name="Women's Health Center" value="1226675619667">Women's Health Center (1226675619667)</option>
+
+			<option name="Women's Imaging" value="1226675619769">Women's Imaging (1226675619769)</option>
+
+			<option name="Women's Imaging (East 55th Street)" value="1226675619683">Women's Imaging (East 55th Street) (1226675619683)</option>
+
+			<option name="Women's Imaging (East 61st Street)" value="1226675619693">Women's Imaging (East 61st Street) (1226675619693)</option>
+
+			<option name="Women's Imaging (East 70th Street)" value="1226675619709">Women's Imaging (East 70th Street) (1226675619709)</option>
+
+			<option name="Women's Wellness/Payne Whitney Manhattan" value="1226675619819">Women's Wellness/Payne Whitney Manhattan (1226675619819)</option>
+
+			<option name="Women's Wellness/Payne Whitney Westchester" value="1226675619835">Women's Wellness/Payne Whitney Westchester (1226675619835)</option>
+
+			<option name="Yasmine Weaver Admin Practice" value="1227568377579">Yasmine Weaver Admin Practice (1227568377579)</option>
+
+			<option name="Zulema F. Fischbarg, M.D." value="1226675619847">Zulema F. Fischbarg, M.D. (1226675619847)</option>
+
+</select>
+
+
+<input type="Reset"><input type="button" onClick="go();" value="Generate web service URL" name="Submit"/>
+</form>
+
+<hr/>
+
+<div id="webServiceUrl"></div>
+
+
+</textarea>
+
+</body>
+</html>

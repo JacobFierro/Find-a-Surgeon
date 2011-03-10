@@ -324,6 +324,7 @@ body {
 	        
 #results {
     position: relative;
+    display: none;
 }	        
 
     /* structure */
