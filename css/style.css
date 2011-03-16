@@ -329,7 +329,7 @@ body {
 
     /* structure */
     
-    #last-name, #conditions, #services {
+    #last-name, #specialties, #services {
         float: left;
 		height: 423px;
 		width: 248px;
@@ -509,19 +509,7 @@ body {
 	float: left;
 }
 
-	#divisions {
-		border-right: 1px solid #888888;
-	}
-
-	#specialties {
-		border-right: 1px solid #888888;
-	}
-
-	#surgeons {
-
-	}
-
-
+	
 /*
 	Theme
 */
@@ -558,6 +546,10 @@ body {
 	
 }
 
+.yellow {
+	background-color: yellow;
+	color: #000000;
+}
 
 
 /*

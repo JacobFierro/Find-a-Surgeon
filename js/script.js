@@ -14,16 +14,90 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		settings = {},
 		view_manager = {},
 		data_manager = {};
-		
-	view_manager.clear_input = function(clear) {
+	
+	view_manager.template = {};
+	
+	view_manager.clear_input = function(focus) {
 		$(context.settings.inputID).val("");
-		if (clear) {
+		if (focus !== "undefined" && focus) {
 			$(context.settings.inputID).focus();
 		}
 	}
 	
+	/**
+	** @params: type $('ul')
+	*/
+	view_manager.clear_list = function(list) {
+		list.html("");
+	}
+	
+	
+	
+	
+	view_manager.template.highlight_string = function(value) {
+		return '<span class="highlight">' + value + '</span>';
+	}
+	
+	view_manager.template.list_item = function(type, value) {
+		switch (type) {
+			case "last_name" :
+				return '<li>' + value + '</li>';
+				break;
+			case "specialties" :
+				"<li>" + value + "</li>";
+				break;
+		}
+	}
+	
+	
+	
 	view_manager.on_initialize_complete = function() {
 		$(context.settings.results).fadeIn();
+	}
+	
+	view_manager.list_view = function(type) {
+		
+			
+	}
+	
+	view_manager.list_view.match_string = function(term, regex, item) {
+		var match = item.match(regex);
+		return item.replace(regex, '<span class="yellow">'+match+'</span>');
+	}
+	
+	
+	view_manager.list_view.last_name = function(term, regex) {
+		var ul = $('#last-name').find('ul');
+		view_manager.clear_list(ul);
+		
+		if (term.length > 0) {
+			$(names).each(function(i){
+				var item = names[i].last_name;
+				if (regex.test(item)) {
+					ul.append("<li>" + view_manager.list_view.match_string(term, regex, names[i].full_name) + "</li>");	
+				}	
+			});
+		} else {
+			view_manager.clear_list(ul);
+		}
+		
+	}
+	
+	view_manager.list_view.specialties = function(term, regex) {
+		var ul = $('#specialties').find('ul');
+		view_manager.clear_list(ul);
+		
+		if (term.length > 0) {
+			$(specialties).each(function(i){
+				var item = specialties[i];
+				if (regex.test(item)) {
+					ul.append("<li>" + view_manager.list_view.match_string(term, regex, item) + "</li>");
+				}	
+			});
+		} else {
+			view_manager.clear_list(ul);
+		}
+		
 	}
 	
 	
@@ -35,7 +109,11 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
         });
 	}
 	
-	data_manager.parse_input = function() {
+	data_manager.parse_input = function(term) {
+		var regex = new RegExp('\\b' + term, "i");
+		
+		view_manager.list_view.last_name(term, regex);
+		view_manager.list_view.specialties(term, regex);
 		
 	}
 	
@@ -56,7 +134,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		//bind the keyup event, publish value
 		$('#input').keyup(function(){
 			var value = $('#input').val().toLowerCase();
-
+			data_manager.parse_input(value);
 		});
 	}
 	
