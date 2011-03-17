@@ -335,6 +335,7 @@ body {
 		width: 248px;
 		padding-top: 25px;
 		margin-right: 20px;
+		overflow: hidden;
     }
     
    #services {
@@ -347,6 +348,13 @@ body {
        background-color: #f7f9fa;
        
    }
+
+	#last-name ul li img {
+		float: left;
+		width: 34px;
+		height: 51px;
+		margin-right: 5px;
+	}
    
    #card {
        display: none;
@@ -455,23 +463,56 @@ body {
             
             
    
-   /* styling */
-   
-   #results header {
-       font-family: Georgia, serif;
-       font-size: 16px;
-       color: #055381;
-       border-bottom: 1px solid #d6d5d5;
-       padding-bottom: 4px;
-       margin-bottom: 8px;
-   }
+	/* styling */
+
+	#results header {
+	    font-family: Georgia, serif;
+	    font-size: 16px;
+	    color: #055381;
+	    border-bottom: 1px solid #d6d5d5;
+	    padding-bottom: 4px;
+	    margin-bottom: 8px;
+	}
+	
+	#last-name ul li {
+		display: block;
+		margin-bottom: 7px;
+		font-size: 12px;
+		color: #003656;
+		float: left;
+		width: 100%;
+	}
+	
+		#last-name ul li .name {
+			float: left;
+			padding: 3px;
+		}
+	
+		#last-name ul li:hover {
+			background-color: #e4ebf0;
+		}
+	
+	#specialties ul li a {
+		display: block;
+		padding: 7px 0px;
+		font-size: 12px;
+		color: #003656;
+		text-decoration: none;
+	}
+	
+		#specialties ul li a:hover {
+			background-color: #e4ebf0;
+		}
+
+
    
    #services header {
        margin-left: 5px;
    }
    
-   #services ul li {
-   }
+	#services ul li {
+		
+	}
    
    #services ul li a {
        display: block;
@@ -546,10 +587,16 @@ body {
 	
 }
 
-.yellow {
-	background-color: yellow;
+#last-name .match, #specialties .match {
+	background-color: #fff799;
 	color: #000000;
+	font-weight: bold;
 }
+
+	#services .match {
+		color: #003656;
+		font-weight: bold;
+	}
 
 
 /*
@@ -585,39 +632,7 @@ ul {
 		background: #dcecfb;
 	}
 
-/************************
-FILTER STYLES
-************************/
 
-.filterable .no_match {
-	color: red;
-}
-
-.match {
-	font-weight: bold;
-	color: red;
-	background: yellow;
-}
-
-.unmatch {
-	color: #b7b7b7;
-}
-	
-.unmatch .match {
-	font-weight: normal;
-	color: #b7b7b7;
-	background: none;
-}
-	
-/***********************
-END FILTER STYLES
-***********************/
-	
-	
-	
-	
-	
-	
 	
 
 
