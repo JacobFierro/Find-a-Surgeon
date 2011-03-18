@@ -349,12 +349,21 @@ body {
        
    }
 
-	#last-name ul li img {
+	#last-name ul li div {
 		float: left;
 		width: 34px;
 		height: 51px;
 		margin-right: 5px;
 	}
+	
+		#last-name ul li .loading {
+			background: #f7f9fa url("../images/ajax-loader.gif") no-repeat center center;
+		}
+		
+		#last-name ul li img {
+			width: 34px;
+			height: 51px;
+		}
    
    #card {
        display: none;

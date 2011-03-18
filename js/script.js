@@ -47,7 +47,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	}
 	
 	view_manager.template.last_names = function(obj) {
-		return '<li><img src="' + obj.photo + '"><span class="name">' + obj.full_name + '</span></li>';
+		return '<li><div class="loading" id="'+ obj.id +'"></div><span class="name">' + obj.full_name + '</span></li>';
 	}
 	
 	view_manager.template.specialties = function(obj) {
@@ -81,14 +81,14 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			
 			$(names).each(function(i){
 				var item = names[i].last_name;
-				
 				if (regex.test(item) && (count < max) ) {
 					ul.append( 
 						view_manager.template.last_names({
 							"full_name" : view_manager.list_view.match_string(term, regex, names[i].full_name),
-							"photo" : names[i].headshot_url
+							"id" : 'id' + i
 						})
 					);
+					data_manager.get_image(names[i].headshot_url, 'id'+i, term.length);
 					count++;
 				} else if (regex.test(item) && (count === max) ) {
 					var total = 1;
@@ -200,6 +200,28 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		view_manager.list_view.last_name(term, regex);
 		view_manager.list_view.specialties(term, regex);
 		view_manager.list_view.services(term, regex);
+	}
+	
+	/**
+	** @params (string) full path to image, (string) the id of the loading div, (int) the count of the current term
+	*/
+	data_manager.get_image = function(url, el, count) {
+		var el = '#'+el;
+		
+		//count lets me know whether the image needs to be loaded or not, only load on the first letter
+		if (count > 1) {
+			$(el).append('<img src="'+ url +'">');
+		} else {
+			var img = new Image();
+			$(img)
+				.load(function(){
+					$(el).removeClass('loading').append(this);
+				})
+				.error(function(){
+					url = "https://images.med.cornell.edu/headshots/default.jpg";
+				})
+				.attr('src', url);
+		}
 	}
 	
 	
