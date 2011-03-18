@@ -12,6 +12,8 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	var names,
 		specialties,
 		services,
+		term = "",
+		regex,
 		settings = {},
 		view_manager = {},
 		data_manager = {};
@@ -21,12 +23,14 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	
 	view_manager.on_initialize_complete = function() {
 		$(context.settings.results).fadeIn();
+		this.zero_match( $('#last-name').find('ul') );
+		this.zero_match( $('#specialties').find('ul') );
 	}
 	
 	view_manager.clear_input = function(focus) {
-		$(context.settings.inputID).val("");
+		$(context.settings.inputId).val("");
 		if (focus !== "undefined" && focus) {
-			$(context.settings.inputID).focus();
+			$(context.settings.inputId).focus();
 		}
 	}
 	
@@ -35,6 +39,17 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	*/
 	view_manager.clear_list = function(list) {
 		list.html("");
+	}
+	
+	view_manager.zero_match = function(ul) {
+		var msg = "";
+		log(ul.parent().attr('id'));
+		if (term !== msg ) {
+			msg = 'No matches for term "'+term+'".';
+		} else {
+			msg = "Enter a term to begin search.";
+		}
+		$(ul).html('<li class="helper">'+msg+'</li>');
 	}
 	
 	
@@ -54,135 +69,115 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		return '<li><a href="'+ context.settings.base_url + obj.path + '">' + obj.title + '</a></li>';
 	}
 	
-	view_manager.template.highlight_string = function(value) {
-		return '<span class="highlight">' + value + '</span>';
-	}
-	
 	
 	/*
 		LIST VIEW
 	*/
 	
-	view_manager.list_view = {};
-	
-	view_manager.list_view.match_string = function(term, regex, item) {
-		var match = item.match(regex);
-		return item.replace(regex, '<span class="match">'+match+'</span>');
-	}
-	
-	view_manager.list_view.last_name = function(term, regex) {
-		var max = 6,
-			count = 0;
-		
-		var ul = $('#last-name').find('ul');
-		view_manager.clear_list(ul);
+	/**
+	** (int) max - max number to show
+	** (string) div - the div to target e.g. #last-name, #specialties, #services
+	*/
+	view_manager.filterable_list = function(obj){
+		var max		= obj.max,
+			ul		= $(obj.div).find('ul'),
+			count	= 0;
+			
+		view_manager.clear_list(ul); //clear and redraw for each call
 		
 		if (term.length > 0) {
-			
-			$(names).each(function(i){
-				var item = names[i].last_name;
-				if (regex.test(item) && (count < max) ) {
-					ul.append( 
-						view_manager.template.last_names({
-							"full_name" : view_manager.list_view.match_string(term, regex, names[i].full_name),
-							"id" : 'id' + i
-						})
-					);
-					data_manager.get_image(names[i].headshot_url, 'id'+i, term.length);
-					count++;
-				} else if (regex.test(item) && (count === max) ) {
-					var total = 1;
+			switch (obj.div) {
+				case "#last-name" :
 					$(names).each(function(i){
-						if ( regex.test(names[i].last_name) ) {
-							total++;
-						}
+						var item = names[i].last_name;
+						var test = regex.test(item);
+						if (test && (count < max) ) {
+							ul.append( 
+								view_manager.template.last_names({
+									"full_name" : data_manager.get_matched_string(names[i].full_name),
+									"id" : 'id' + i
+								})
+							);
+							data_manager.get_image(names[i].headshot_url, 'id'+i, term.length);
+							count++;
+						} else if (test && (count === max) ) {
+							var total = 1;
+							$(names).each(function(i){
+								if ( regex.test(names[i].last_name) ) {
+									total++;
+								}
+							});
+							ul.append('<li><a href="#">Viewing ' + max + ' of ' + total + ' (see all)</a></li>');
+							count++;
+						} 
+						
 					});
-					ul.append('<li><a href="#">Viewing ' + max + ' of ' + total + ' (see all)</a></li>');
-					count++;
-				} else if (count > max) {
-					return;
-				}
-			});
-		
-		} else {
-			view_manager.clear_list(ul);
-		}
-		
-	}
-	
-	view_manager.list_view.specialties = function(term, regex) {
-		var max = 12,
-			count = 0;
-			
-		var ul = $('#specialties').find('ul');
-		view_manager.clear_list(ul);
-		
-		if (term.length > 0) {
-			
-			$(specialties).each(function(i){
-				var item = specialties[i];
-				
-				if (regex.test(item) && (count < max) ) {
-					ul.append( 
-						view_manager.template.specialties({
-							"path" : "/index.html",
-							"title" : view_manager.list_view.match_string(term, regex, item)
-						})
-					);
-					count++;
-				} else if (regex.test(item) && (count === max) ) {
-					var total = 1;
+					break;
+					
+				case "#specialties" :
 					$(specialties).each(function(i){
-						if ( regex.test(specialties[i]) ) {
-							total++;
-						}
+						var item = specialties[i];
+						var test = regex.test(item);
+						if (test && (count < max) ) {
+							ul.append( 
+								view_manager.template.specialties({
+									"path" : "/index.html",
+									"title" : data_manager.get_matched_string(item)
+								})
+							);
+							count++;
+						} else if (test && (count === max) ) {
+							var total = 1;
+							$(specialties).each(function(i){
+								if ( regex.test(specialties[i]) ) {
+									total++;
+								}
+							});
+							ul.append('<li><a href="#">Viewing ' + max + ' of ' + total + ' (see all)</a></li>');
+							count++;
+						} 
 					});
-					ul.append('<li><a href="#">Viewing ' + max + ' of ' + total + ' (see all)</a></li>');
-					count++;
-				} else if (count > max) {
-					return;
-				}
-			});
-		
+					break;
+					
+				case "#services" :
+					$(services).each(function(i){
+						var item = services[i].title;
+						if (regex.test(item)) {
+							item = data_manager.get_matched_string(item);
+						}
+						ul.append(view_manager.template.services({
+							"path" : services[i].path,
+							"title" : item
+						}));
+					});
+					break;
+				default :
+					log('you have not provided list_name to view_manager.filterable_list');
+					error('there has been an initialization error');
+			}
 		} else {
-			view_manager.clear_list(ul);
+			if (obj.div !== "#services") {
+				view_manager.zero_match(ul);
+			} else {
+				view_manager.filterable_list.init_services();
+			}
 		}
-		
-	}
+	};
 	
-	view_manager.list_view.services = function(term, regex) {
-		var ul = $('#services').find('ul');
-		view_manager.clear_list(ul);
-		
-		if (term.length > 0) {
-			$(services).each(function(i){
-				var item = services[i].title;
-				if (regex.test(item)) {
-					item = view_manager.list_view.match_string(term, regex, item);
-				}
-				ul.append(view_manager.template.services({
-					"path" : services[i].path,
-					"title" : item
-				}));
-			});
-		} else {
-			view_manager.list_view.services.init();
-		}
-	}
-	
-	view_manager.list_view.services.init = function() {
+	view_manager.filterable_list.init_services = function() {
 		$(services).each(function(i){
 			var li = '<li><a href="'+ context.settings.base_url + services[i].path + '">' + services[i].title + '</a></li>';
 			$('#services').find('ul').append(li);
 		});
 	}
+
+	
 	
 	
 	data_manager.initialize_data = function() {
-		
 		$.getJSON(context.settings.services, function(data){
 			services = data.services;
-			view_manager.list_view.services.init();
+			view_manager.filterable_list.init_services();
 			
 			// flow control, better way?
 			$.getJSON(context.settings.data, function(data){
@@ -190,16 +185,31 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 				specialties = data.specialties;
 				view_manager.on_initialize_complete();
 	        });
-			
 		});
 	}
 	
-	data_manager.parse_input = function(term) {
-		var regex = new RegExp('\\b' + term, "i");
+	data_manager.parse_input = function(input) {
+		term = input;
+		regex = new RegExp('\\b' + term, "i");
 		
-		view_manager.list_view.last_name(term, regex);
-		view_manager.list_view.specialties(term, regex);
-		view_manager.list_view.services(term, regex);
+		view_manager.filterable_list({
+			'div'		: '#last-name',
+			'max'		: 6
+		});
+		
+		view_manager.filterable_list({
+			'div'		: '#specialties',
+			'max'		: 12
+		});
+		
+		view_manager.filterable_list({
+			'div'		: '#services',
+			'max'		: null
+		});
+	}
+	
+	data_manager.get_matched_string = function(item) {
+		return item.replace(regex, '<span class="match">'+ item.match(regex) +'</span>');
 	}
 	
 	/**
@@ -229,7 +239,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		context.settings = {
 			data : 'js/data.json',
 			services : 'js/services.json',
-			inputID : '#input',
+			inputId : '#input',
 			results : '#results',
 			base_url : "http://new.weill.cornell.edu/testspace/fas"
 		};
@@ -241,9 +251,8 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		data_manager.initialize_data();
 
 		//bind the keyup event, publish value
-		$('#input').keyup(function(){
-			var value = $('#input').val().toLowerCase();
-			data_manager.parse_input(value);
+		$(context.settings.inputId).keyup(function(){
+			data_manager.parse_input( $(this).val() );
 		});
 	}
 	
@@ -253,30 +262,3 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 $(document).ready(function() {
 	SRCH.init();
 });
-
-
-/*
-view_manager.list_view = function(obj) {
-	// ul id, data, term, regex, filter (boolean)
-	var ul = $(obj.list_id).find('ul');
-	var data = obj.data;
-	
-	//clear list first
-	view_manager.clear_list(ul);
-	
-	//regex match and populate
-	if (obj.term.length > 0) {
-		$(data).each(function(i){
-			var li = view_manager.list_view.build_item();
-			
-			ul.append(li);
-		});
-	}
-}
-
-view_manager.list_view.build_item = function() {
-	if (obj.type = "last_name") {
-		if (regex.test(term))
-	}
-}
-*/

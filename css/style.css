@@ -606,6 +606,10 @@ body {
 		color: #003656;
 		font-weight: bold;
 	}
+	
+#last-name ul li.helper, #specialties ul li.helper {
+	color: #898989;
+}
 
 
 /*
