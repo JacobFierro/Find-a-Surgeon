@@ -16,15 +16,16 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		regex,
 		settings = {},
 		view_manager = {},
-		data_manager = {};
+		data_manager = {},
+		list = {};
 	
 	view_manager.template = {};
 	
 	
 	view_manager.on_initialize_complete = function() {
 		$(context.settings.results).fadeIn();
-		this.zero_match( $('#last-name').find('ul') );
-		this.zero_match( $('#specialties').find('ul') );
+		this.zero_match( $('#last-name') );
+		this.zero_match( $('#specialties') );
 	}
 	
 	view_manager.clear_input = function(focus) {
@@ -35,7 +36,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	}
 	
 	/**
-	** @params: type $('ul')
+	** @params: jQuery Selector $('ul')
 	*/
 	view_manager.clear_list = function(list) {
 		list.html("");
@@ -43,15 +44,17 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	
 	view_manager.zero_match = function(ul) {
 		var msg = "";
-		log(ul.parent().attr('id'));
 		if (term !== msg ) {
 			msg = 'No matches for term "'+term+'".';
 		} else {
 			msg = "Enter a term to begin search.";
 		}
-		$(ul).html('<li class="helper">'+msg+'</li>');
+		$(ul).find('.feedback').html(msg);
 	}
 	
+	view_manager.feedback = function() {
+		
+	}
 	
 	/*
 		TEMPLATES
@@ -74,6 +77,59 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		LIST VIEW
 	*/
 	
+	list.get_count = function(list, attribute_name) {
+		var count = 0;
+		$(list).each(function(i){
+			var test_value = list[i][attribute_name];
+			if( regex.test(test_value) ) {
+				count++;
+			}
+		});
+		return count;
+	}
+	
+	list.get_filtered = function(list, attribute_name) {
+		var arr = [];
+		$(list).each(function(i){
+			var test_value = list[i][attribute_name] || list[i];
+			if( regex.test(test_value) ) {
+				arr.push(list[i]);
+			}
+		});
+		return arr;
+	}
+	
+	view_manager.feedback = function(ul, max, length) {
+		var msg = "";
+		if (term.length === 0 && length === 0) {
+			msg = "Enter a term to begin search.";
+		} else if (term.length > 0 && length === 0) {
+			msg = "Viewing 0 matches";
+		} else {
+			max = (length < max) ? length : max;
+			msg = "Viewing " + max + " of " + length + " (see all)";
+		}
+		ul.parent().find(".feedback").html(msg);
+	}
+	
+	view_manager.short_list = function(ul, data, max) {
+		var inc = 0;
+		view_manager.feedback(ul, max, data.length);
+		$(data).each(function(i){
+			
+			if (inc < max) {
+				ul.append( 
+					view_manager.template.last_names({
+						"full_name" : data_manager.get_matched_string(data[i].full_name),
+						"id" : 'id' + i
+					})
+				);
+				data_manager.get_image(data[i].headshot_url, 'id'+i, term.length);
+			}
+			inc++;
+		});
+	}
+	
 	/**
 	** (int) max - max number to show
 	** (string) div - the div to target e.g. #last-name, #specialties, #services
@@ -88,54 +144,37 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		if (term.length > 0) {
 			switch (obj.div) {
 				case "#last-name" :
-					$(names).each(function(i){
-						var item = names[i].last_name;
-						var test = regex.test(item);
-						if (test && (count < max) ) {
+					var filtered = list.get_filtered(names, "last_name"); //returned array
+					var inc = 0;
+					view_manager.feedback(ul, max, filtered.length);
+					$(filtered).each(function(i){
+						if (inc < max) {
 							ul.append( 
 								view_manager.template.last_names({
-									"full_name" : data_manager.get_matched_string(names[i].full_name),
+									"full_name" : data_manager.get_matched_string(filtered[i].full_name),
 									"id" : 'id' + i
 								})
 							);
-							data_manager.get_image(names[i].headshot_url, 'id'+i, term.length);
-							count++;
-						} else if (test && (count === max) ) {
-							var total = 1;
-							$(names).each(function(i){
-								if ( regex.test(names[i].last_name) ) {
-									total++;
-								}
-							});
-							ul.append('<li><a href="#">Viewing ' + max + ' of ' + total + ' (see all)</a></li>');
-							count++;
-						} 
-						
+							data_manager.get_image(filtered[i].headshot_url, 'id'+i, term.length);
+						}
+						inc++;
 					});
 					break;
 					
 				case "#specialties" :
-					$(specialties).each(function(i){
-						var item = specialties[i];
-						var test = regex.test(item);
-						if (test && (count < max) ) {
+					var filtered = list.get_filtered(specialties); //returned array
+					var inc = 0;
+					view_manager.feedback(ul, max, filtered.length);
+					$(filtered).each(function(i){
+						if (inc < max) {
 							ul.append( 
 								view_manager.template.specialties({
 									"path" : "/index.html",
-									"title" : data_manager.get_matched_string(item)
+									"title" : data_manager.get_matched_string(filtered[i])
 								})
 							);
-							count++;
-						} else if (test && (count === max) ) {
-							var total = 1;
-							$(specialties).each(function(i){
-								if ( regex.test(specialties[i]) ) {
-									total++;
-								}
-							});
-							ul.append('<li><a href="#">Viewing ' + max + ' of ' + total + ' (see all)</a></li>');
-							count++;
-						} 
+						}
+						inc++;
 					});
 					break;
 					
@@ -158,6 +197,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		} else {
 			if (obj.div !== "#services") {
 				view_manager.zero_match(ul);
+				view_manager.feedback(ul, max, 0);
 			} else {
 				view_manager.filterable_list.init_services();
 			}
