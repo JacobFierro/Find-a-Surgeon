@@ -2,59 +2,59 @@
 	"services" : [
 		{
 			"title" : "Breast Surgery",
-			"path" : "breast-surgery/index.html"
+			"path" : "services/breast-surgery/team.html"
 		},
 		{
 			"title" : "Burns, Critical Care and Trauma",
-			"path" : "burn-surgery/index.html"
+			"path" : "services/burn-surgery/team.html"
 		},
 		{
 			"title" : "Colon and Rectal Surgery",
-			"path" : "colon-rectal/index.html"
+			"path" : "services/colon-rectal/team.html"
 		},
 		{
 			"title" : "Dentistry, Oral and Maxillofacial Surgery",
-			"path" : "dentistry-oral-maxillofacial/index.html"
+			"path" : "services/dentistry-oral-maxillofacial/team.html"
 		},
 		{
 			"title" : "Endocrine Surgery",
-			"path" : "endocrine/index.html"
+			"path" : "services/endocrine/team.html"
 		},
 		{
 			"title" : "Gastroesophageal Motility Disorders Center",
-			"path" : "gi-motility-disorders/index.html"
+			"path" : "services/gi-motility-disorders/team.html"
 		},
 		{
 			"title" : "Gastrointestinal Metabolic Surgery",
-			"path" : "transplantation/index.html"
+			"path" : "services/transplantation/team.html"
 		},
 		{
 			"title" : "Hepatobiliary Surgery and Liver Transplantation",
-			"path" : "livertransplantation/index.html"
+			"path" : "services/livertransplantation/team.html"
 		},
 		{
 			"title" : "Kidney and Pancreas Transplantation",
-			"path" : "transplantation/index.html"
+			"path" : "services/transplantation/team.html"
 		},
 		{
 			"title" : "Laparoscopy and Bariatric Surgery",
-			"path" : "lap-bariatric/index.html"
+			"path" : "services/lap-bariatric/team.html"
 		},
 		{
 			"title" : "Pediatric Surgery",
-			"path" : "ped-surgery/index.html"
+			"path" : "services/ped-surgery/team.html"
 		},
 		{
 			"title" : "Plastic and Reconstructive Surgery",
-			"path" : "plastic-surgery/index.html"
+			"path" : "services/plastic-surgery/team.html"
 		},
 		{
 			"title" : "Surgical Oncology",
-			"path" : "surgical-oncology/index.html"
+			"path" : "services/surgical-oncology/team.html"
 		},
 		{
 			"title" : "Vascular and Endovascular Surgery",
-			"path" : "vascular-surgery/index.html"
+			"path" : "services/vascular-surgery/team.html"
 		}
 	]
 }
