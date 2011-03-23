@@ -287,7 +287,11 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		}));
 		
 		
-		callback();
+		if($.isFunction(callback)){
+			log($.isFunction(callback));
+			callback.apply();
+		}
+		
 		return;
 	}
 	
@@ -295,7 +299,23 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		$('#card').find('#appointments').html("");
 	}
 	
-	data_manager.get_multicol_list = function(source, options) {
+	// list = json obj, sections = int
+	data_manager.split_list_equally = function(list, sections) {
+		var depth = Math.ceil(list.length / sections);
+			ret = [],
+			inc = 0;
+			
+		
+	}
+	
+	data_manager.get_multicol_list = function(source, args) {
+		var cols = args.cols,
+			max = args.max_depth,
+			total = source.length;
+			
+			
+		
+		
 		
 		if((source.length/options.cols) < options.max_depth ){
 			return "good cols";
