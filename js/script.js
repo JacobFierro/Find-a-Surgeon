@@ -280,32 +280,49 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		card.find('#phone').text(data.phone || "N/A");
 		card.find('#fax').text(data.phone || "N/A");
 		card.find('#address').text(data.address || "N/A");
-
-		card.find('#expertise div').html(data_manager.get_multicol_list(data.expertise, {
-			'cols' : 4,
-			'max_depth' : 10
-		}));
 		
+		card.find('#expertise div').html(list.get_simple_multi_column( data.expertise.slice(0, 39), 4, 10) );
+		
+		data_manager.split_list_equally(data.expertise, 4);
 		
 		if($.isFunction(callback)){
-			log($.isFunction(callback));
 			callback.apply();
 		}
 		
 		return;
 	}
 	
+	list.get_simple_multi_column = function(list, cols, max_depth) {
+		var ret = [],
+			start = 0,
+			end = max_depth;
+			
+		data_manager.array_equalizer(list, cols);
+		
+	}
+	
+	data_manager.array_equalizer = function(array, num) {
+		var equal = Math.ceil(array.length/num);
+		
+	}
+	
 	card.on_close = function(){
 		$('#card').find('#appointments').html("");
 	}
 	
-	// list = json obj, sections = int
+	// (array) list, (int) number of sections you want
+	// returns an array of arrays
 	data_manager.split_list_equally = function(list, sections) {
 		var depth = Math.ceil(list.length / sections);
 			ret = [],
-			inc = 0;
+			start = 0;
 			
-		
+		for (var i=0; i < sections; i++) {
+			ret.push( list.slice(start, start+depth) );
+			start = start + depth;
+		}
+			
+		return ret;
 	}
 	
 	data_manager.get_multicol_list = function(source, args) {
@@ -317,7 +334,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		
 		
 		
-		if((source.length/options.cols) < options.max_depth ){
+		if((source.length/args.cols) < args.max_depth ){
 			return "good cols";
 		}
 		
