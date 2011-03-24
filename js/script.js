@@ -5,11 +5,14 @@
 */
 
 var UTILS = typeof(UTILS) === "undefined" ? {} : UTILS;
-
 (function(context, undefined){
 	
-	
-	context.object_to_array = function(object) {
+	/**
+	** Takes an object and translates it to an array
+	** @params (obj) single level list object
+	** @example UTILS.list_to_array( {"pizza", "burgers"} ); // ["pizza", "burgers"]
+	**/
+	context.list_to_array = function(object) {
 		var a = [];
 		$(object).each(function(i, item){
 			a.push(item);
@@ -17,13 +20,20 @@ var UTILS = typeof(UTILS) === "undefined" ? {} : UTILS;
 		return a;
 	}
 	
+	/**
+	** Clears li's, does NOT remove ul node
+	** @params (jQuery) ul dom node
+	** @example UTILS.clear_list( $('#specialties').find('ul') );
+	**/
+	context.clear_list = function(list) {
+		list.html("");
+	}
+	
 	
 })(UTILS);
 
 
-// create namespace
 var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
-
 (function(context){
 	
 	var names, //holds last names json
@@ -205,7 +215,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	list.get_smaller_lists = function(list, num_cols, max_per_col) {
 		var ret = "";
 		
-		var balanced = this.list_balancer(UTILS.object_to_array(list).sort(), 4);
+		var balanced = this.list_balancer(UTILS.list_to_array(list).sort(), 4);
 		
 		$(balanced).each(function(i, item){
 			ret += "<ul>";
