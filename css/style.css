@@ -479,6 +479,26 @@ body {
 		#expertise {
 			clear: left;
 		}
+		
+			#results #expertise header {
+				float: left;
+				width: 100%;
+				margin-bottom: 10px;
+			}
+		
+			#expertise ul {
+				float: left;
+				width: 174px;
+				margin-right: 4px;
+				color: #055381;
+			}
+			
+			#expertise ul li {
+				color: #055381;
+				font-family: Geneva, sans-serif;
+				font-size: 10px;
+				margin-bottom: 2px;
+			}
             
             
             

@@ -4,20 +4,38 @@
 	Date: 2-23-11
 */
 
+var UTILS = typeof(UTILS) === "undefined" ? {} : UTILS;
+
+(function(context, undefined){
+	
+	
+	context.object_to_array = function(object) {
+		var a = [];
+		$(object).each(function(i, item){
+			a.push(item);
+		});
+		return a;
+	}
+	
+	
+})(UTILS);
+
+
 // create namespace
 var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 
 (function(context){
 	
-	var names,
-		specialties,
-		services,
-		term = "",
-		regex,
-		settings = {},
+	var names, //holds last names json
+		specialties, //holds specialties json
+		services, //holds, yes, servies json
+		term = "", //the term currently in the input field
+		regex, //the regex object for the term
+		settings = {}, 
 		view_manager = {},
 		data_manager = {},
-		list = {};
+		list = {},
+		card = {};
 	
 	view_manager.template = {};
 	
@@ -184,6 +202,83 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		return arr;
 	}
 	
+	list.get_smaller_lists = function(list, num_cols, max_per_col) {
+		var ret = "";
+		
+		var balanced = this.list_balancer(UTILS.object_to_array(list).sort(), 4);
+		
+		$(balanced).each(function(i, item){
+			ret += "<ul>";
+			$(item).each(function(i, item){
+				ret += "<li>" + item + "</li>";
+			});
+			ret += "</ul>";
+		});
+		
+		return ret;
+	}
+	
+	// (array) list, (int) number of sections you want
+	// returns an array of arrays
+	list.list_balancer = function(list, sections) {
+		var depth = Math.ceil(list.length / sections);
+			ret = [],
+			start = 0;
+			
+		for (var i=0; i < sections; i++) {
+			ret.push( list.slice(start, start+depth) );
+			start = start + depth;
+		}
+			
+		return ret;
+	}
+	
+	card.on_click = function(name) {
+		name_regex = new RegExp('^'+name);
+		
+		var data = data_manager.get_json_node_data(names, "full_name", name_regex);
+		card.populate_data(data[0], function(){
+			$('#card').fadeIn();
+			
+			$('#card').find('#card-close').click(function(){
+				$('#card').fadeOut(function(){
+					card.on_close();
+					data = {};
+					$(context.settings.inputId).focus();
+				});
+			});
+		});
+	}
+	
+	card.populate_data = function(data, callback) {
+		var card = $('#card');
+		//full name
+		card.find('#name').text(data.full_name);
+		
+		card.find('#headshot').attr('src', data.headshot_url);
+		card.find('#pops').attr('href', data.profile_url);
+		
+		$(data.faculty_appointments).each(function(i){
+			$('#appointments').append('<p>' + this.title + '<br><em>' + this.institution + '</em></p>');
+		});
+		
+		card.find('#phone').text(data.phone || "N/A");
+		card.find('#fax').text(data.phone || "N/A");
+		card.find('#address').text(data.address || "N/A");
+		
+		card.find('#expertise div').html(list.get_smaller_lists( data.expertise, 4, 10) );
+		
+		if($.isFunction(callback)){
+			callback.apply();
+		}
+		
+		return;
+	}
+	
+	card.on_close = function(){
+		$('#card').find('#appointments').html("");
+	}
+	
 	data_manager.initialize_data = function() {
 		$.getJSON(context.settings.services, function(data){
 			services = data.services;
@@ -243,104 +338,13 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 				.attr('src', url);
 		}
 	}
-
 	
-	
-	var card = {};
-	
-	card.on_click = function(name) {
-		name_regex = new RegExp('^'+name);
-		
-		var data = data_manager.get_json_node_data(names, "full_name", name_regex);
-		card.populate_data(data[0], function(){
-			$('#card').fadeIn();
-			
-			$('#card').find('#card-close').click(function(){
-				$('#card').fadeOut(function(){
-					card.on_close();
-					data = {};
-					$(context.settings.inputId).focus();
-				});
-			});
+	data_manager.object_to_array = function(object) {
+		var a = [];
+		$(object).each(function(i, item){
+			a.push(item);
 		});
-	}
-	
-	card.populate_data = function(data, callback) {
-		var card = $('#card');
-		//full name
-		card.find('#name').text(data.full_name);
-		
-		card.find('#headshot').attr('src', data.headshot_url);
-		card.find('#pops').attr('href', data.profile_url);
-		
-		$(data.faculty_appointments).each(function(i){
-			$('#appointments').append('<p>' + this.title + '<br><em>' + this.institution + '</em></p>');
-		});
-		
-		card.find('#phone').text(data.phone || "N/A");
-		card.find('#fax').text(data.phone || "N/A");
-		card.find('#address').text(data.address || "N/A");
-		
-		card.find('#expertise div').html(list.get_simple_multi_column( data.expertise.slice(0, 39), 4, 10) );
-		
-		data_manager.split_list_equally(data.expertise, 4);
-		
-		if($.isFunction(callback)){
-			callback.apply();
-		}
-		
-		return;
-	}
-	
-	list.get_simple_multi_column = function(list, cols, max_depth) {
-		var ret = [],
-			start = 0,
-			end = max_depth;
-			
-		data_manager.array_equalizer(list, cols);
-		
-	}
-	
-	data_manager.array_equalizer = function(array, num) {
-		var equal = Math.ceil(array.length/num);
-		
-	}
-	
-	card.on_close = function(){
-		$('#card').find('#appointments').html("");
-	}
-	
-	// (array) list, (int) number of sections you want
-	// returns an array of arrays
-	data_manager.split_list_equally = function(list, sections) {
-		var depth = Math.ceil(list.length / sections);
-			ret = [],
-			start = 0;
-			
-		for (var i=0; i < sections; i++) {
-			ret.push( list.slice(start, start+depth) );
-			start = start + depth;
-		}
-			
-		return ret;
-	}
-	
-	data_manager.get_multicol_list = function(source, args) {
-		var cols = args.cols,
-			max = args.max_depth,
-			total = source.length;
-			
-			
-		
-		
-		
-		if((source.length/args.cols) < args.max_depth ){
-			return "good cols";
-		}
-		
-		
-		
-		
+		return a;
 	}
 	
 	data_manager.get_json_node_data = function(source, attribute, regexp) {
