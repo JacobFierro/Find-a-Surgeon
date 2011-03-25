@@ -4,61 +4,21 @@
 	Date: 2-23-11
 */
 
-
-var UTILS = typeof(UTILS) === "undefined" ? {} : UTILS;
-(function(context, undefined){
-	var name = "";
-	/**
-	** Takes an object and translates it to an array
-	** @params (obj) single level list object
-	** @example UTILS.list_to_array( {"pizza", "burgers"} ); // ["pizza", "burgers"]
-	**/
-	context.object_to_array = function(object) {
-		var a = [];
-		$(object).each(function(i, item){
-			a.push(item);
-		});
-		return a;
-	}
-	
-	/**
-	** Clears li's, does NOT remove ul node
-	** @params (jQuery) ul dom node
-	** @example UTILS.clear_list( $('#specialties').find('ul') );
-	**/
-	context.clear_list = function(list) {
-		list.html("");
-	}
-	
-	context.get_name = function() {
-		return this.name;
-	}
-	
-	context.set_name = function(x) {
-		this.name = x;
-	}
-	
-	
-})(UTILS);
-
-
-
-
-
 var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 (function(context){	
 	var settings = {}, 
 		view_manager = {},
 		data_manager = {},
 		list = {},
-		card = {};
+		card;
 		
 	
 	view_manager.template = {};
 
 	//new and needed
 	var lists = {},
-		json = {};
+		json = {},
+		card = false;
 	
 	
 	var List = function(settings) {
@@ -231,7 +191,11 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		}
 		
 		self.template = function(data, id) {
-			return '<li class="name_item"><div class="loading" id="id'+ id +'"></div><span class="name">' + self.get_matched_string(data.full_name) + '</span></li>';
+			var temp = '<li class="name_item">';
+				temp += '<div class="image loading" id="id'+ id +'"></div>';
+				temp += '<div class="name">' + self.get_matched_string(data.full_name) + '</div>';
+				temp += (data.practicing_specialty) ? '<div class="prac_spec">'+ data.practicing_specialty  +'</div></li>' : "";
+			return temp;
 		};
 
 		return self;
@@ -284,11 +248,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		
 		
 		//Private		
-		close_card = function() {
-			el.fadeOut();
-			$(context.settings.inputId).focus();
-			$('#card').find('#appointments').html("");
-		}
+		
 
 		populate_card = function() {
 			//full name
@@ -309,9 +269,8 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 				'data' : data.expertise,
 				'id' : '#expertise_holder',
 				'max' : 40
-			});
-			var expertise_html = expertise.multi_column(4);
-			el.find('#expertise div').html( expertise_html );	
+			}).multi_column(4);
+			el.find('#expertise div').html( expertise );	
 		}
 		
 		//Public	
@@ -322,9 +281,16 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			
 			//close card listener
 			close_el.click(function(){
-				close_card();
+				self.close_card();
 			});
 		}
+		
+		self.close_card = function() {
+			el.fadeOut();
+			$(context.settings.inputId).focus();
+			$('#card').find('#appointments').html("");
+		}
+		
 		
 		return self;
 	} // Card
@@ -332,56 +298,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	
 	
 	
-
-	
-	card.on_click = function(name) {
-		name_regex = new RegExp('^'+name);
-		
-		var data = data_manager.get_json_node_data(names, "full_name", name_regex);
-		card.populate_data(data[0], function(){
-			$('#card').fadeIn();
-			
-			$('#card').find('#card-close').click(function(){
-				$('#card').fadeOut(function(){
-					card.on_close();
-					data = {};
-					$(context.settings.inputId).focus();
-				});
-			});
-		});
-	}
-	
-	card.populate_data = function(data, callback) {
-		var card = $('#card');
-		//full name
-		card.find('#name').text(data.full_name);
-		
-		card.find('#headshot').attr('src', data.headshot_url);
-		card.find('#pops').attr('href', data.profile_url);
-		
-		$(data.faculty_appointments).each(function(i){
-			$('#appointments').append('<p>' + this.title + '<br><em>' + this.institution + '</em></p>');
-		});
-		
-		card.find('#phone').text(data.phone || "N/A");
-		card.find('#fax').text(data.phone || "N/A");
-		card.find('#address').text(data.address || "N/A");
-		
-		card.find('#expertise div').html(list.get_smaller_lists( data.expertise, 4, 10) );
-		
-		if($.isFunction(callback)){
-			callback.apply();
-		}
-		
-		return;
-	}
-	
-	card.on_close = function(){
-		$('#card').find('#appointments').html("");
-	}
-	
-	
-	object_to_array = function(object) {
+	var object_to_array = function(object) {
 		var a = [];
 		$(object).each(function(i, item){
 			a.push(item);
@@ -403,7 +320,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	}
 	
 	//private methods
-	get_image = function(url, el, count) {
+	var get_image = function(url, el, count) {
 		var el = '#'+el;
 
 		//count lets me know whether the image needs to be loaded or not, only load on the first letter
@@ -422,7 +339,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		}
 	}
 	
-	initialize_data = function(callback) {
+	var initialize_data = function(callback) {
 		$.getJSON(context.settings.services, function(data){
 			lists.services = ServicesList({
 				'data' : data.services,
@@ -456,18 +373,41 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		}
 	}
 	
-	parse_input = function(term) {
+	var parse_input = function(term) {
 		regex = new RegExp('\\b' + term, "i");
 		
 		lists.names.filter(term,regex);
 		lists.specialties.filter(term, regex);
 		lists.services.filter(term, regex);
+		
+		card_manager(term);
 	}
 	
-	clear_input = function(focus) {
+	var clear_input = function(focus) {
 		$(context.settings.inputId).val("");
 		if (focus !== "undefined" && focus) {
 			$(context.settings.inputId).focus();
+		}
+	}
+	
+	var card_manager = function(term) {
+		if (card) {
+			card.close_card();
+			card = false;
+		} else {
+			$('#last-name').find('.name_item').each(function(){
+				$(this).click(function(){
+					
+					//establish new Card
+					card = Card({
+						'name' : $(this).find('#name').text(),
+						'el' : $(context.settings.card),
+						'close_el' : $(context.settings.card_close),
+						'data' : get_json_node($(this).find('#name').text(), json.names, 'full_name')
+					});
+					card.show();
+				});
+			});
 		}
 	}
 	
@@ -493,23 +433,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		//bind the keyup event, publish value
 		$(context.settings.inputId).keyup(function(){
 			parse_input( $(this).val() );
-			
-			$('#last-name').find('.name_item').each(function(){
-				$(this).click(function(){
-					//establish new Card
-					var mini_profile = Card({
-						'name' : $(this).text(),
-						'el' : $(context.settings.card),
-						'close_el' : $(context.settings.card_close),
-						'data' : get_json_node($(this).text(), json.names, 'full_name')
-					});
-					mini_profile.show();
-				});
-			});
 		});
-		
-		
-		
 	}
 	
 })(SRCH);
