@@ -4,9 +4,25 @@
 	Date: 2-23-11
 */
 
+if (typeof Object.beget !== 'function') {
+	Object.beget = function(o) {
+		var F = function(){};
+		F.prototype = o;
+		return new F();
+	}
+}
+/*
+Object.method('superior', function (name) {
+    var that = this,
+        method = that[name];
+    return function (  ) {
+        return method.apply(that, arguments);
+    };
+});
+*/
 var UTILS = typeof(UTILS) === "undefined" ? {} : UTILS;
 (function(context, undefined){
-	
+	var name = "";
 	/**
 	** Takes an object and translates it to an array
 	** @params (obj) single level list object
@@ -29,13 +45,23 @@ var UTILS = typeof(UTILS) === "undefined" ? {} : UTILS;
 		list.html("");
 	}
 	
+	context.get_name = function() {
+		return this.name;
+	}
+	
+	context.set_name = function(x) {
+		this.name = x;
+	}
+	
 	
 })(UTILS);
 
 
+
+
+
 var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
-(function(context){
-	
+(function(context){	
 	var names, //holds last names json
 		specialties, //holds specialties json
 		services, //holds, yes, servies json
@@ -46,61 +72,167 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		data_manager = {},
 		list = {},
 		card = {};
+		
 	
 	view_manager.template = {};
+
+	//new and needed
+	var lists = {};
 	
-	view_manager.on_initialize_complete = function() {
-		$(context.settings.results).fadeIn();
-		this.feedback( $('#last-name') );
-		this.feedback( $('#specialties') );
-	}
 	
-	view_manager.clear_input = function(focus) {
-		$(context.settings.inputId).val("");
-		if (focus !== "undefined" && focus) {
-			$(context.settings.inputId).focus();
+	
+	var List = function(settings) {
+		var self = {};
+
+		//private vars
+		var list = settings.list,
+			id = settings.id,
+			ul = settings.ul,
+			feedback = $(id).find('.feedback'),
+			regex = settings.regex,
+			max = settings.max,
+			term = settings.term;
+
+		//public methods
+		self.get_matched_string = function(item) {
+			return item.replace(settings.regex, '<span class="match">'+ item.match(settings.regex) +'</span>');
+		};
+		
+		self.initialize_list = function() {
+			settings.ul.html("");
+			self.set_feedback(0);
 		}
-	}
-	
-	/**
-	** @params: jQuery Selector $('ul')
-	*/
-	view_manager.clear_list = function(list) {
-		list.html("");
-	}
-	
-	view_manager.feedback = function(ul, max, length) {
-		var msg = "",
-			max = max || 0;
-			length = length || 0;
+		
+		self.clear_list = function() {
+			settings.ul.html("");
+		}
+
+		self.print_all = function() {
+			self.clear_list();
+			$(settings.list).each(function(i, item){
+				$(settings.id).find('ul').append(self.template(item, i));
+			});
+		}
+		
+		self.print_list = function(filtered) {
+			self.clear_list();
+
+			$.each(filtered, function(i, item) {
+				settings.ul.append( self.template(item, i) );
+			});
+		}
+		
+		self.init_feedback = function() {
+			$(feedback).html("Enter a term to begin search.");
+		}
+		
+		self.set_feedback = function(match_count) {
+			var msg = "";
+				matched = match_count || 0;
 			
-		if (term.length === 0 && length === 0) {
-			msg = "Enter a term to begin search.";
-		} else if (term.length > 0 && length === 0) {
-			msg = "No matches found";
-		} else {
-			var count = (length < max) ? length : max;
-			var seeall = (length < max) ? "" : " (see all)";
-			msg = "Viewing " + count + " of " + length + seeall;
+			if (settings.term.length === 0 && match_count === 0) {
+				init_feedback();
+				return;
+			} else if (settings.term.length > 0 && match_count === 0) {
+				msg = "No matches found";
+			} else {
+				var count = (match_count < settings.max) ? match_count : settings.max;
+				var seeall = (match_count < settings.max) ? "" : " (see all)";
+				msg = "Viewing " + count + " of " + match_count + seeall;
+			}
+			$(feedback).html(msg);
 		}
-		ul.parent().find(".feedback").html(msg);
+		
+		self.filter = function(term, regex) {
+			if (term.length > 0) {
+				settings.term = term;
+				settings.regex = regex;
+
+				var filtered = self.get_filtered();
+				self.set_feedback(filtered.length);
+				self.print_list( limit(filtered) );	
+			} else {
+				self.initialize_list();
+			}
+		}
+		
+		//filter data crunching
+		self.get_filtered = function() {
+			var arr = [];
+			$(list).each(function(i){
+				var node = list[i][settings.filter_against] || list[i];
+				if( settings.regex.test(node) ) {
+					arr.push(list[i]);
+				}
+			});
+			return arr;
+		}
+		
+		limit = function(arr) {
+			return (settings.max) ? arr.slice(0, settings.max) : arr;
+		}
+
+		return self; //List
+	}
+
+	var NamesList = function(settings) {
+		var self = List(settings);
+		
+		settings.filter_against = "last_name";
+
+		//public methods
+		self.print_list = function(filtered) {
+			self.clear_list();
+			
+			$.each(filtered, function(i, item) {
+				settings.ul.append( self.template(item, i) );
+				get_image(item.headshot_url, 'id'+i, term.length);
+			});
+		}
+		
+		self.template = function(data, id) {
+			return '<li class="name_item"><div class="loading" id="id'+ id +'"></div><span class="name">' + self.get_matched_string(data.full_name) + '</span></li>';
+		};
+
+		return self;
 	}
 	
-	/*
-		TEMPLATES
-	*/
-	
-	view_manager.template.services = function(obj) {
-		return '<li><a href="'+ obj.path + '">' + obj.title + '</a></li>';
+	var SpecialtiesList = function(settings) {
+		var self = List(settings);
+
+		//public methods
+		self.template = function(data) {
+			return '<li><a href="search.html#'+ data +'">' + self.get_matched_string(data) + '</a></li>';
+		}
+
+		return self;
 	}
 	
-	view_manager.template.last_names = function(obj) {
-		return '<li class="name_item"><div class="loading" id="'+ obj.id +'"></div><span class="name">' + obj.full_name + '</span></li>';
+	var ServicesList = function(settings) {
+		var self = List(settings);
+		
+		print_list = function(filtered) {
+			self.clear_list();
+			
+			$.each(filtered, function(i, item){
+				settings.ul.append( self.template(item) );
+			});
+		}
+		
+		self.filter = function(term, regex) {
+			settings.term = term;
+			settings.regex = regex;
+			
+			print_list(settings.list);
+		}
+		
+		self.template = function(data) {
+			return '<li><a href="'+ context.settings.base_url + data.path + '">' + self.get_matched_string(data.title) + '</a></li>';
+		}
+		
+		return self;
 	}
 	
-	view_manager.template.specialties = function(obj) {
-		return '<li><a href="'+ context.settings.base_url + obj.path + '">' + obj.title + '</a></li>';
-	}
 	
 	
 	/*
@@ -181,14 +313,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		}
 	};
 	
-	list.init_services = function() {
-		$(services).each(function(i){
-			var li = '<li><a href="'+ context.settings.base_url + services[i].path + '">' + services[i].title + '</a></li>';
-			$('#services').find('ul').append(li);
-		});
-	}
 
-	
 	//not using this at the moment, getting count from get_filtered arr.count
 	list.get_count = function(list, attribute_name) {
 		var count = 0;
@@ -201,16 +326,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		return count;
 	}
 	
-	list.get_filtered = function(list, attribute_name) {
-		var arr = [];
-		$(list).each(function(i){
-			var test_value = list[i][attribute_name] || list[i];
-			if( regex.test(test_value) ) {
-				arr.push(list[i]);
-			}
-		});
-		return arr;
-	}
+	
 	
 	list.get_smaller_lists = function(list, num_cols, max_per_col) {
 		var ret = "";
@@ -289,39 +405,8 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		$('#card').find('#appointments').html("");
 	}
 	
-	data_manager.initialize_data = function() {
-		$.getJSON(context.settings.services, function(data){
-			services = data.services;
-			list.init_services();
-			
-			// flow control, better way?
-			$.getJSON(context.settings.data, function(data){
-	            names = data.physicians;
-				specialties = data.specialties;
-				view_manager.on_initialize_complete();
-	        });
-		});
-	}
 	
-	data_manager.parse_input = function(input) {
-		term = input;
-		regex = new RegExp('\\b' + term, "i");
-		
-		list({
-			'div'		: '#last-name',
-			'max'		: 6
-		});
-		
-		list({
-			'div'		: '#specialties',
-			'max'		: 12
-		});
-		
-		list({
-			'div'		: '#services',
-			'max'		: null
-		});
-	}
+	
 	
 	data_manager.get_matched_string = function(item) {
 		return item.replace(regex, '<span class="match">'+ item.match(regex) +'</span>');
@@ -330,24 +415,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	/**
 	** @params (string) full path to image, (string) the id of the loading div, (int) the count of the current term
 	*/
-	data_manager.get_image = function(url, el, count) {
-		var el = '#'+el;
-		
-		//count lets me know whether the image needs to be loaded or not, only load on the first letter
-		if (count > 1) {
-			$(el).append('<img src="'+ url +'">');
-		} else {
-			var img = new Image();
-			$(img)
-				.load(function(){
-					$(el).removeClass('loading').append(this);
-				})
-				.error(function(){
-					url = "https://images.med.cornell.edu/headshots/default.jpg";
-				})
-				.attr('src', url);
-		}
-	}
+	
 	
 	data_manager.object_to_array = function(object) {
 		var a = [];
@@ -368,7 +436,73 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		return arr;
 	}
 	
+	//private methods
+	get_image = function(url, el, count) {
+		var el = '#'+el;
+
+		//count lets me know whether the image needs to be loaded or not, only load on the first letter
+		if (count > 1) {
+			$(el).append('<img src="'+ url +'">');
+		} else {
+			var img = new Image();
+			$(img)
+				.load(function(){
+					$(el).removeClass('loading').append(this);
+				})
+				.error(function(){
+					url = "https://images.med.cornell.edu/headshots/default.jpg";
+				})
+				.attr('src', url);
+		}
+	}
 	
+	initialize_data = function(callback) {
+		$.getJSON(context.settings.services, function(data){
+			lists.services = ServicesList({
+				'list' : data.services,
+				'id' : '#services',
+				'ul' : $('#services').find('ul')
+			});
+			lists.services.print_all();
+		});
+		
+		$.getJSON(context.settings.data, function(data){
+			lists.names = NamesList({
+				'list' : data.physicians,
+				'id' : '#last-name',
+				'ul' : $('#last-name').find('ul'),
+				'max' : 6
+			});
+			lists.names.init_feedback();
+			
+			lists.specialties = SpecialtiesList({
+				'list' : data.specialties,
+				'id' : '#specialties',
+				'ul' : $('#specialties').find('ul'),
+				'max' : 12
+			});
+			lists.specialties.init_feedback();
+        });
+
+		if($.isFunction(callback)){
+			callback();
+		}
+	}
+	
+	parse_input = function(term) {
+		regex = new RegExp('\\b' + term, "i");
+
+		lists.names.filter(term,regex);
+		lists.specialties.filter(term, regex);
+		lists.services.filter(term, regex);
+	}
+	
+	clear_input = function(focus) {
+		$(context.settings.inputId).val("");
+		if (focus !== "undefined" && focus) {
+			$(context.settings.inputId).focus();
+		}
+	}
 	
 	context.init = function(options) {
 		context.settings = {
@@ -380,14 +514,16 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		};
 		
 		//initialize to empty text field
-		view_manager.clear_input(true);
+		clear_input(true);
 		
-		//establish data manager and retrieve json data
-		data_manager.initialize_data();
+		//establish data then show lists
+		initialize_data(function(){
+			$(context.settings.results).fadeIn();
+		});
 
 		//bind the keyup event, publish value
 		$(context.settings.inputId).keyup(function(){
-			data_manager.parse_input( $(this).val() );
+			parse_input( $(this).val() );
 			
 			$('#last-name').find('.name_item').each(function(){
 				$(this).click(function(){
