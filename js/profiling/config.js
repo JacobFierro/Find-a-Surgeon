@@ -9,13 +9,15 @@ var PROFILE = {
   	// define what objects, constructors and functions you want to profile
   	// documentation here: http://developer.yahoo.com/yui/profiler/
   	
-  	YAHOO.tool.Profiler.registerObject("jQuery", jQuery, true);
+  	//YAHOO.tool.Profiler.registerObject("jQuery", jQuery, true);
+	YAHOO.tool.Profiler.registerObject("SRCH.lists.names");
+	//YAHOO.tool.Profiler.registerObject("SRCH.parse_input", SRCH);
   	
   	// the following would profile all methods within constructor's prototype
-    // YAHOO.tool.Profiler.registerConstructor("Person");
+    // YAHOO.tool.Profiler.registerConstructor("List");
   	
     // the following would profile the global function sayHi
-    // YAHOO.tool.Profiler.registerFunction("sayHi", window); 
+    //YAHOO.tool.Profiler.registerFunction("List.get_filtered", List); 
     
     // if true is passed into init(), F9 will bring up the profiler
     if (bool){

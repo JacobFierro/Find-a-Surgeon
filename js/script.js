@@ -4,22 +4,7 @@
 	Date: 2-23-11
 */
 
-if (typeof Object.beget !== 'function') {
-	Object.beget = function(o) {
-		var F = function(){};
-		F.prototype = o;
-		return new F();
-	}
-}
-/*
-Object.method('superior', function (name) {
-    var that = this,
-        method = that[name];
-    return function (  ) {
-        return method.apply(that, arguments);
-    };
-});
-*/
+
 var UTILS = typeof(UTILS) === "undefined" ? {} : UTILS;
 (function(context, undefined){
 	var name = "";
@@ -62,12 +47,7 @@ var UTILS = typeof(UTILS) === "undefined" ? {} : UTILS;
 
 var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 (function(context){	
-	var names, //holds last names json
-		specialties, //holds specialties json
-		services, //holds, yes, servies json
-		term = "", //the term currently in the input field
-		regex, //the regex object for the term
-		settings = {}, 
+	var settings = {}, 
 		view_manager = {},
 		data_manager = {},
 		list = {},
@@ -131,7 +111,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 				matched = match_count || 0;
 			
 			if (settings.term.length === 0 && match_count === 0) {
-				init_feedback();
+				self.init_feedback();
 				return;
 			} else if (settings.term.length > 0 && match_count === 0) {
 				msg = "No matches found";
@@ -144,13 +124,13 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		}
 		
 		self.filter = function(term, regex) {
+			settings.term = term;
+			settings.regex = regex;
+			
 			if (term.length > 0) {
-				settings.term = term;
-				settings.regex = regex;
-
 				var filtered = self.get_filtered();
 				self.set_feedback(filtered.length);
-				self.print_list( limit(filtered) );	
+				self.print_list( self.limit(filtered) );	
 			} else {
 				self.initialize_list();
 			}
@@ -168,7 +148,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			return arr;
 		}
 		
-		limit = function(arr) {
+		self.limit = function(arr) {
 			return (settings.max) ? arr.slice(0, settings.max) : arr;
 		}
 
@@ -183,10 +163,10 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		//public methods
 		self.print_list = function(filtered) {
 			self.clear_list();
-			
+
 			$.each(filtered, function(i, item) {
 				settings.ul.append( self.template(item, i) );
-				get_image(item.headshot_url, 'id'+i, term.length);
+				get_image(item.headshot_url, 'id'+i, settings.term.length);
 			});
 		}
 		
@@ -234,97 +214,29 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	}
 	
 	
-	
-	/*
-		LIST VIEW
-	*/
-	
-	/**
-	** (int) max - max number to show
-	** (string) div - the div to target e.g. #last-name, #specialties, #services
-	*/
-	list = function(obj){
-		var max		= obj.max,
-			ul		= $(obj.div).find('ul'),
-			count	= 0;
-			
-		view_manager.clear_list(ul); //clear and redraw for each call
+	var Card = function(settings) {
+		var self = {};
 		
-		if (term.length > 0) {
-			switch (obj.div) {
-				case "#last-name" :
-					var filtered = list.get_filtered(names, "last_name"); //returned array
-					var inc = 0;
-					view_manager.feedback(ul, max, filtered.length);
-					$(filtered).each(function(i){
-						if (inc < max) {
-							ul.append( 
-								view_manager.template.last_names({
-									"full_name" : data_manager.get_matched_string(filtered[i].full_name),
-									"id" : 'id' + i
-								})
-							);
-							data_manager.get_image(filtered[i].headshot_url, 'id'+i, term.length);
-						}
-						inc++;
-					});
-					break;
-					
-				case "#specialties" :
-					var filtered = list.get_filtered(specialties); //returned array
-					var inc = 0;
-					view_manager.feedback(ul, max, filtered.length);
-					$(filtered).each(function(i){
-						if (inc < max) {
-							ul.append( 
-								view_manager.template.specialties({
-									"path" : "/index.html",
-									"title" : data_manager.get_matched_string(filtered[i])
-								})
-							);
-						}
-						inc++;
-					});
-					break;
-					
-				case "#services" :
-					$(services).each(function(i){
-						var item = services[i].title;
-						if (regex.test(item)) {
-							item = data_manager.get_matched_string(item);
-						}
-						ul.append(view_manager.template.services({
-							"path" : services[i].path,
-							"title" : item
-						}));
-					});
-					break;
-				default :
-					log('you have not provided list_name to view_manager.filterable_list');
-					error('there has been an initialization error');
-			}
-		} else {
-			if (obj.div !== "#services") {
-				view_manager.clear_list(ul);
-				view_manager.feedback(ul, max, 0);
-			} else {
-				list.init_services();
-			}
+		var name = settings.name,
+			regex = new RegExp('^'+name);
+			
+		close_card = function() {
+			$('#card').fadeOut();
 		}
-	};
-	
-
-	//not using this at the moment, getting count from get_filtered arr.count
-	list.get_count = function(list, attribute_name) {
-		var count = 0;
-		$(list).each(function(i){
-			var test_value = list[i][attribute_name] || list[i];;
-			if( regex.test(test_value) ) {
-				count++;
-			}
-		});
-		return count;
+			
+		self.init = function() {
+			
+			
+			$('#card-close').click(function(){
+				close_card();
+			});
+		}
+		
+		return self;
 	}
+	
+	
+	
 	
 	
 	
@@ -407,11 +319,6 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	
 	
 	
-	
-	data_manager.get_matched_string = function(item) {
-		return item.replace(regex, '<span class="match">'+ item.match(regex) +'</span>');
-	}
-	
 	/**
 	** @params (string) full path to image, (string) the id of the loading div, (int) the count of the current term
 	*/
@@ -491,7 +398,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	
 	parse_input = function(term) {
 		regex = new RegExp('\\b' + term, "i");
-
+		
 		lists.names.filter(term,regex);
 		lists.specialties.filter(term, regex);
 		lists.services.filter(term, regex);
@@ -527,7 +434,9 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			
 			$('#last-name').find('.name_item').each(function(){
 				$(this).click(function(){
-					card.on_click( $(this).text() );
+					var mini_profile = Card({
+						'name' : $(this).text()
+					}).init();
 				});
 			});
 		});
@@ -541,4 +450,5 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 
 $(document).ready(function() {
 	SRCH.init();
+	//PROFILE.show();
 });
