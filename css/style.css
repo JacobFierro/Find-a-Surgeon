@@ -324,9 +324,12 @@ body {
 	        
 #results {
     position: relative;
-    display: none;
 }	        
-
+	
+	.panel {
+		display: none;
+	}
+	
     /* structure */
     
     #last-name, #specialties, #services {
@@ -512,6 +515,10 @@ body {
 	    border-bottom: 1px solid #d6d5d5;
 	    padding-bottom: 4px;
 	    margin-bottom: 4px;
+	}
+	
+	#view_everthing, #view_last_name, #view_specialty, #view_services {
+		display: none;
 	}
 	
 	#last-name ul li {

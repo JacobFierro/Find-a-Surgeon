@@ -6,21 +6,16 @@
 
 var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 (function(context){	
-	var settings = {}, 
-		view_manager = {},
-		data_manager = {},
-		list = {},
-		card;
-		
-	
-	view_manager.template = {};
+	var settings = {}
 
-	//new and needed
 	var lists = {},
 		json = {},
+		views = {},
 		card = false;
 	
-	
+	/*
+		List Classes
+	*/
 	var List = function(settings) {
 		var self = {};
 		
@@ -237,7 +232,9 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		return self;
 	}
 	
-	
+	/*
+		Card Class
+	*/
 	var Card = function(settings) {
 		var self = {};
 		
@@ -246,10 +243,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			close_el = settings.close_el,
 			data = settings.data;
 		
-		
 		//Private		
-		
-
 		populate_card = function() {
 			//full name
 			$(el).find('#name').text(data.full_name);
@@ -291,13 +285,46 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			$('#card').find('#appointments').html("");
 		}
 		
-		
 		return self;
 	} // Card
 	
 	
+	/*
+		View Class (i.e. Tabs)
+	*/
+	var View = function(settings) {
+		var self = {};
+		
+		var control = settings.control,
+			panel = settings.panel,
+			active = settings.panel;
+			
+			
+		self.activate = function(callback) {
+			log(panel);
+			settings.panel.fadeIn();
+
+			if ( $.isFunction(callback) ) {
+				callback();
+			}
+			
+			return self;
+		}
+		
+		self.deactivate = function(callback) {
+			panel.fadeOut();
+			
+			if ( $.isFunction(callback) ) {
+				callback();
+			}
+			
+			return self;
+		}
+		
+		return self;
+	}
 	
-	
+	//private methods
 	var object_to_array = function(object) {
 		var a = [];
 		$(object).each(function(i, item){
@@ -319,7 +346,6 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		return ret;
 	}
 	
-	//private methods
 	var get_image = function(url, el, count) {
 		var el = '#'+el;
 
@@ -397,7 +423,6 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		} else {
 			$('#last-name').find('.name_item').each(function(){
 				$(this).click(function(){
-					
 					//establish new Card
 					card = Card({
 						'name' : $(this).find('#name').text(),
@@ -411,6 +436,54 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		}
 	}
 	
+	var total_views = function(){
+		var inc = 0;
+		$('nav').find('ul').find('li').each(function(i){
+			inc++;
+		});
+		return inc;
+	}
+	
+	var map_view_controls = function() {
+		var map = [];
+		$('nav').find('ul').find('li').each(function(i, item){
+			$(item).addClass('tab'+i);
+		});
+		
+		$('.panel').each(function(i, item){
+			$(item).addClass('view'+i);
+			map['tab'+i] = 'view'+i;
+		});
+		
+		return map;
+	}
+	
+	var initialize_views = function() {
+		views.everything = View({
+			'control' : $('#control0'),
+			'panel' : $('#view0'),
+			'active' : true
+		});
+		
+		views.names = View({
+			'control' : $('#control1'),
+			'panel' : $('#view2'),
+			'active' : false
+		});
+		
+		views.specialties = View({
+			'control' : $('#control2'),
+			'panel' : $('#view2'),
+			'active' : false
+		});
+		
+		views.services = View({
+			'control' : $('#control3'),
+			'panel' : $('#view3'),
+			'active' : false
+		});
+	}
+	
 	context.init = function(options) {
 		context.settings = {
 			data : 'js/data.json',
@@ -422,17 +495,28 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			base_url : "http://cornellsurgery.org/patients/"
 		};
 		
+		initialize_views();
+		
+		
 		//initialize to empty text field
 		clear_input(true);
 		
 		//establish data then show lists
 		initialize_data(function(){
-			$(context.settings.results).fadeIn();
+			views.everything.activate();
+			//$(context.settings.results).fadeIn();
 		});
 
 		//bind the keyup event, publish value
 		$(context.settings.inputId).keyup(function(){
 			parse_input( $(this).val() );
+		});
+		
+		//bind hover event for tab nav 
+		$('nav').find('ul').find('li').each(function(i, item){
+			$(this).click(function(){
+				
+			});
 		});
 	}
 	

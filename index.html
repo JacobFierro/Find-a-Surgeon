@@ -47,31 +47,47 @@
 
 			<nav>
 				<ul>
-					<li class="active"><span>Everything</span></li>
-					<li><span>Last Name</span></li>
-					<li><span>Condition <em>or</em> Specialty</span></li>
-					<li><span>Surgical Services</span></li>
+					<li class="active" id="control0"><span>Everything</span></li>
+					<li id="control1"><span>Last Name</span></li>
+					<li id="control2"><span>Condition <em>or</em> Specialty</span></li>
+					<li id="control3"><span>Surgical Services</span></li>
 				</ul>
 			</nav>
 
 			<section id="results">
+				<section id="view0" class="panel">
+					<section id="last-name">
+						<header>by Last Name</header>
+						<div class="feedback"></div>
+						<ul></ul>
+					</section>
 
-				<section id="last-name">
+					<section id="specialties">
+						<header>by Condition or Specialty</header>
+						<div class="feedback"></div>
+						<ul></ul>
+					</section>
+
+					<section id="services">
+						<header>Surgical Services</header>
+						<ul></ul>
+					</section>
+				</section>
+				
+				<section id="view1" class="panel">
 					<header>by Last Name</header>
-					<div class="feedback"></div>
-					<ul></ul>
 				</section>
-
-				<section id="specialties">
+				
+				<section id="view2" class="panel">
 					<header>by Condition or Specialty</header>
-					<div class="feedback"></div>
-					<ul></ul>
 				</section>
-
-				<section id="services">
+				
+				<section id="view3" class="panel">
 					<header>Surgical Services</header>
-					<ul></ul>
 				</section>
+				
+				
+				
 				
 				<section id="card">
 					<section id="photo">
@@ -144,7 +160,6 @@
   <!-- Grab Google CDN's jQuery. fall back to local if necessary -->
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
   <script>!window.jQuery && document.write(unescape('%3Cscript src="js/libs/jquery-1.4.2.js"%3E%3C/script%3E'))</script>
-  
   
   <!-- scripts concatenated and minified via ant build script--> 
   <script src="js/plugins.js"></script>
