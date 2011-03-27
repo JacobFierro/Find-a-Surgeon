@@ -360,8 +360,12 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			});
 		}
 		
-		self.register_list = function(l) {
+		self.register_list = function(l, callback) {
 			list.push(l);
+			
+			if ($.isFunction(callback)) {
+				callback.apply(this);
+			}
 		}
 		
 		self.get_list = function() {
@@ -493,7 +497,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		});
 	}
 	
-	var initialize_data = function(callback) {
+	var initialize_data = function(callback) { 
 		$.getJSON(context.settings.services, function(data){
 			json.services = data.services;
 			lists.services = ServicesList({
@@ -501,9 +505,10 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 				'id' : '#services',
 				'ul' : $('#services').find('ul')
 			});
-			views.everything.register_list(lists.services);
+			views.everything.register_list(lists.services, function(){
+				lists.services.print_all();
+			});
 			views.services.register_list(lists.services);
-			lists.services.print_all();
 		});
 		
 		$.getJSON(context.settings.data, function(data){
@@ -514,9 +519,10 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 				'ul' : $('#last-name').find('ul'),
 				'max' : 6
 			});
-			views.everything.register_list(lists.names);
+			views.everything.register_list(lists.names, function(){
+				lists.names.init_feedback();
+			});
 			views.names.register_list(lists.names);
-			lists.names.init_feedback();
 			
 			json.specialties = data.specialties;
 			lists.specialties = SpecialtiesList({
@@ -525,9 +531,10 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 				'ul' : $('#specialties').find('ul'),
 				'max' : 12
 			});
-			views.everything.register_list(lists.specialties);
+			views.everything.register_list(lists.specialties, function(){
+				lists.specialties.init_feedback();
+			});
 			views.specialties.register_list(lists.specialties);
-			lists.specialties.init_feedback();
         });		
 
 		if($.isFunction(callback)){
