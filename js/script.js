@@ -63,12 +63,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			ul.html("");
 		}
 		
-		self.limit = function(arr) {
-			if (!arr) {
-				arr = object_to_array(data);
-			}
-			return (settings.max) ? arr.slice(0, settings.max) : arr;
-		}
+		
 		
 		self.template = function(data) {
 			return '<li>' + data + '</li>';
@@ -94,6 +89,15 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			return settings.id;
 		}
 		
+		self.get_short_list = function() {
+			var data = self.limit(self.filtered);
+			var ret = [];
+			$.each(data, function(i, item) {
+				ret.push(self.template(item));
+			});
+			return ret;
+		}
+		
 		return self; //List
 	} //List
 		
@@ -105,7 +109,10 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			regex = settings.regex,
 			max = settings.max,
 			term = settings.term;
-
+		
+		//Instance Variables
+		self.filtered = [];
+		
 		//public methods
 		self.get_matched_string = function(item) {
 			return item.replace(settings.regex, '<span class="match">'+ item.match(settings.regex) +'</span>');
@@ -163,32 +170,21 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		}
 		
 		
-		self.filter = function(term, regex) {
+		self.filter = function(term, regex) { //saves the filtered list to the instance variable
 			settings.term = term;
 			settings.regex = regex;
 			
 			if (term.length > 0) {
-				var filtered = self.get_filtered();
-				self.set_feedback(filtered.length);
-				self.print_list( self.limit(filtered) );	
+				self.filtered = self.get_filtered(regex);
+				//self.set_feedback(filtered.length);
+				//self.print_list( self.limit(filtered) );	
 			} else {
-				self.initialize_list();
+				self.filtered = [];
+				//self.initialize_list();
 			}
 		}
 		
-		//filter data crunching
-		self.get_filtered = function() {
-			var arr = [];
-			$(settings.data).each(function(i){
-				var node = settings.data[i][settings.filter_against] || settings.data[i];
-				if( settings.regex.test(node) ) {
-					arr.push(settings.data[i]);
-				}
-			});
-			return arr;
-		}
-		
-		self.return_filtered = function(regex) {
+		self.get_filtered = function(regex) {
 			var arr = [];
 			$(settings.data).each(function(i, item){
 				var node = item[settings.filter_against] || item;
@@ -208,16 +204,6 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		var self = FilterableList(settings);
 		
 		settings.filter_against = "last_name";
-
-		//public methods
-		self.print_list = function(filtered) {
-			self.clear_list();
-
-			$.each(filtered, function(i, item) {
-				settings.ul.append( self.template(item, i) );
-				get_image(item.headshot_url, 'id'+i, settings.term.length);
-			});
-		}
 		
 		self.template = function(data, id) {
 			var temp = '<li class="name_item">';
@@ -244,6 +230,8 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	var ServicesList = function(settings) {
 		var self = FilterableList(settings);
 		
+		settings.filter_against = "title";
+		
 		print_list = function(filtered) {
 			self.clear_list();
 			
@@ -252,12 +240,6 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			});
 		}
 		
-		self.filter = function(term, regex) {
-			settings.term = term;
-			settings.regex = regex;
-			
-			print_list(settings.data);
-		}
 		
 		self.template = function(data) {
 			return '<li><a href="'+ context.settings.base_url + data.path + '">' + self.get_matched_string(data.title) + '</a></li>';
@@ -323,6 +305,37 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		
 		return self;
 	} // Card
+	
+	
+	/*
+		List Printer 
+	*/
+	var ListPrinter = function(settings) {
+		var self = {};
+		
+		var target = settings.target;
+		
+		self.clear_list = function() {
+			
+		}
+		
+		self.print_list = function() {
+			
+		}
+		
+		self.set_limit = function(num) {
+			settings.max = num;
+		}
+		
+		self.limit = function(arr) {
+			if (!arr) {
+				arr = object_to_array(arr);
+			}
+			return (settings.max) ? arr.slice(0, settings.max) : arr;
+		}	
+			
+		return self;
+	}
 	
 	
 	/* 
@@ -394,12 +407,20 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			});
 		}
 		
-		self.do_filter = function(term, regex) {
-			var filtered = lists.names.return_filtered(regex);
-			lists.names.new_feedback(term.length, filtered.length);
+		self.do_list = function(term, regex) {
+			$.each(settings.list, function(i, item){
+				item.filter(term, regex);
+			});
 			
-			var el = lists.names.get_element();
-			settings.panel.find(el).find('ul').append('hi');
+			var html = settings.list[1].get_short_list();
+			log(html);
+			//var filtered = lists.names.return_filtered(regex);
+			//lists.names.new_feedback(term.length, filtered.length);
+			
+			//lists.names.filter(term, regex);
+			
+			//var el = lists.names.get_element();
+			//settings.panel.find(el).find('ul').append('hi');
 			
 			//self.set_feedback(filtered.length);
 			//self.print_list( self.limit(filtered) );
@@ -409,8 +430,8 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			//log(filtered);
 			
 			//lists.names.filter(term,regex);
-			lists.specialties.filter(term, regex);
-			lists.services.filter(term, regex);
+			//lists.specialties.filter(term, regex);
+			//lists.services.filter(term, regex);
 		}
 		
 		return self;
@@ -511,7 +532,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	tab_manager.on_input_event = function(term) {
 		regex = new RegExp('\\b' + term, "i");
 		
-		tab_manager.active.do_filter(term, regex);
+		tab_manager.active.do_list(term, regex);
 		
 		card_manager(term);
 	}
@@ -621,7 +642,8 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 				'id' : '.services',
 				'ul' : $('.services').find('ul')
 			});
-			//lists.services.print_all();
+			tabs.everything.register_list(lists.services);
+			tabs.services.register_list(lists.services);
 			tab_manager.list_has_loaded();
 		});
 		
@@ -630,17 +652,19 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			lists.names = NamesList({
 				'data' : data.physicians,
 				'id' : '.last-name',
-				'ul' : $('.last-name').find('ul'),
-				'max' : 6
+				'ul' : $('.last-name').find('ul')
 			});
+			tabs.everything.register_list(lists.names);
+			tabs.names.register_list(lists.names);
 			tab_manager.list_has_loaded();
 			
 			lists.specialties = SpecialtiesList({
 				'data' : data.specialties,
 				'id' : '.specialties',
-				'ul' : $('.specialties').find('ul'),
-				'max' : 12
+				'ul' : $('.specialties').find('ul')
 			});
+			tabs.everything.register_list(lists.specialties);
+			tabs.specialties.register_list(lists.specialties);
 			tab_manager.list_has_loaded();
         });
 	}
