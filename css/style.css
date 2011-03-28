@@ -321,11 +321,18 @@ body {
 	                background: url("../images/full-pointer.png") no-repeat left top;
 	                color: #FFFFFF;
 	            }
+				
+				nav ul li#control2.active, nav ul li.active span:hover {
+	                background: url("../images/full-pointer-tall.png") no-repeat left top;
+	                color: #FFFFFF;
+	            }
 	        
 #results {
     position: relative;
 }	        
-	
+
+    /* structure */
+    
 	.panel {
 		display: none;
 	}
@@ -336,9 +343,8 @@ body {
 			padding-top: 25px;
 			margin-right: 0;
 		}
-	
-    /* structure */
-    
+
+
     .last-name, .specialties, .services {
         float: left;
 		height: 423px;
@@ -524,10 +530,6 @@ body {
 	    margin-bottom: 4px;
 	}
 	
-	#view_everthing, #view_last_name, #view_specialty, #view_services {
-		display: none;
-	}
-	
 	.last-name ul li {
 		display: block;
 		margin-bottom: 7px;
@@ -667,18 +669,18 @@ body {
 	
 }
 
-#last-name .match, #specialties .match {
+.last-name .match, .specialties .match {
 	background-color: #fff799;
 	color: #000000;
 	font-weight: bold;
 }
 
-	#services .match {
+	.services .match {
 		color: #003656;
 		font-weight: bold;
 	}
 	
-#last-name ul li.helper, #specialties ul li.helper {
+.last-name ul li.helper, .specialties ul li.helper {
 	color: #898989;
 }
 

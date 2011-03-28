@@ -6,177 +6,24 @@
 
 var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 (function(context){	
-	var settings = {}
+	var settings = {};
 
+	//new and needed
 	var lists = {},
-		list_gotten_count = 0;
+		list_loaded = 0,
 		json = {},
-		views = {},
-		view_manager = {},
-		card = false,
-		term = $(context.inputId).val();
-		
-		view_manager.lists = [];
+		tabs = {},
+		tab_manager = {},
+		card = false;
 	
 	
-	
-	
-	/*
-		View Class (i.e. Tabs)
-	*/
-	var View = function(settings) {
-		var self = {};
-		
-		var control = settings.control,
-			panel = settings.panel;
-			
-			
-			settings.list = [];
-			
-			
-		self.activate = function(callback) {
-			control.addClass('active');
-			panel.fadeIn();
-			
-			if ( $.isFunction(callback) ) {
-				callback();
-			}
-		}
-		
-		self.deactivate = function(callback) {
-			control.removeClass('active');
-			
-			//callback executes after current panel fades out
-			panel.fadeOut(function(){
-				if ( $.isFunction(callback) ) {
-					callback();
-				}
-			});
-		}
-		
-		self.prepare = function() {
-			control.addClass('active');
-		}
-		
-		self.register_list = function(li) {
-			//adds List to (obj) list dictionary
-			settings.list.push(li);
-		}
-		
-		self.list_action = function() {
-			
-		}
-		
-		self.get_control = function() {
-			return settings.control;
-		}
-		
-		self.get_panel = function() {
-			return settings.panel;
-		}
-		
-		self.get_list = function() {
-			return settings.list;
-		}
-		
-		return self;
-	}
-	
-	var EverythingView = function(settings) {
-		var self = View(settings);
-		
-		self.print_list = function() {
-			log(term);
-			settings.list[0].filter();
-		}
-		
-		self.initialize = function() {
-			$.each(settings.list, function(i, item){
-				this.init_feedback();
-			});
-			
-			settings.list[2].print_all(); 
-		}
-		
-		return self;
-	}
-	
-	//View Manager - how the app interfaces with View(s)
-	view_manager.activate_listener = function(view) {
-		$.each(views, function(i, item){
-			item.get_control().click(function(){
-				view_manager.activate_view(item);
-			});
-		});	
-	}
-	
-	//call this method whenever you want to show a new view
-	view_manager.activate_view = function(view) {
-		if (this.get_active() !== view) {
-			view.prepare();
-			this.switch_handler(view);
-			this.register_active(view);
-			
-			
-			view.print_list();
-			//natural place for List interface commands
-			$.each(view.get_list(), function(i, item){
-				//item.get_element().append("hi");
-			});
-		} else {
-			log('view is already active');
-			return;
-		}
-	}
-	
-	// do not call this method directly, call activate_view
-	view_manager.switch_handler = function(next) {
-		if (this.get_active()) {
-			view_manager.active.deactivate(function(){
-				next.activate();
-			});
-		} else {
-			next.activate();
-		}
-	}
-	
-	view_manager.register_active = function(view) {
-		view_manager.active = view;
-	}
-	
-	view_manager.get_active = function() {
-		return view_manager.active;
-	}
-	
-	view_manager.on_input_event = function(term) {
-		var regex = new RegExp('\\b' + term, "i");
-		log(term);
-		
-		//another natural place for List interface commands
-		// mr. view, please have your lists filter for term and then show the results
-	}
-	
-	//fires setup when all 3 lists have loaded, solves non-sequential firing problem
-	view_manager.list_is_ready = function() {
-		list_gotten_count++;
-		if (list_gotten_count === 3) {
-			//Setup view manager
-			view_manager.activate_listener();
-			view_manager.activate_view(views.everything);
-		}
-	}
-	
-	
-	
-	
-	/*
-		List Class
-	*/
 	var List = function(settings) {
 		var self = {};
 		
 		var data = settings.data,
-			max = false;
+			id = settings.id, //wrapper div
+			ul = settings.ul, //jQuery element
+			max = settings.max; //optional max items to display
 		
 		
 		list_balancer = function(list, sections) {
@@ -201,43 +48,11 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		}
 		
 		//public
-		
-		self.get_list_sinlge_column = function() {
-			var ret = '<ul>';
-			
-			$.each(data, function(i, item){
-				ret += self.template(item, i);
-			});
-			
-			ret += '</ul>';
-			
-			return ret;
-		}
-		
-		self.set_limit = function(val) {
-			settings.max = val;
-		}
-		
-		self.get_list_all = function() {
-			var ret = '<ul>';
-			$(settings.data).each(function(i, item){
-				ret += self.template(item, i);
-			});
-			ret += '</ul>';
-			return ret;
-		}
-		
-		self.print_list = function(list) {
-			$.each(list, function(i, item){
-				settings.element.append(self.template(item));
-			});
-		}
-		
 		self.print_all = function() {
 			try {
 				self.clear_list();
 				$(settings.data).each(function(i, item){
-					settings.element.append(self.get_list_all());
+					ul.append(self.template(item, i));
 				});
 			} catch(e) {
 				log(new Error(e));
@@ -245,7 +60,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		}
 		
 		self.clear_list = function() {
-			settings.element.find('ul').remove();
+			ul.html("");
 		}
 		
 		self.limit = function(arr) {
@@ -259,7 +74,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			return '<li>' + data + '</li>';
 		}
 		
-		self.get_multi_column = function(num_cols) {
+		self.multi_column = function(num_cols) {
 			var ret = "";
 			
 			var balanced = list_balancer( self.limit(object_to_array(data).sort()), num_cols);
@@ -276,21 +91,20 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		}
 		
 		self.get_element = function() {
-			return settings.element;
+			return settings.id;
 		}
-		
 		
 		return self; //List
 	} //List
-	
+		
 	var FilterableList = function(settings) {
 		var self = List(settings);
 
 		//private vars
-		var feedback = $(settings.element).find('.feedback'),
-			regex,
-			max,
-			term;
+		var feedback = $(settings.id).find('.feedback'),
+			regex = settings.regex,
+			max = settings.max,
+			term = settings.term;
 
 		//public methods
 		self.get_matched_string = function(item) {
@@ -300,6 +114,14 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		self.initialize_list = function() {
 			settings.ul.html("");
 			self.set_feedback(0);
+		}
+		
+		self.print_list = function(filtered) {
+			self.clear_list();
+
+			$.each(filtered, function(i, item) {
+				settings.ul.append( self.template(item, i) );
+			});
 		}
 		
 		self.init_feedback = function() {
@@ -323,17 +145,34 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			$(feedback).html(msg);
 		}
 		
+		self.new_feedback = function(term_count, match_count) {
+			var msg = "";
+				matched = match_count || 0;
+			
+			if (term_count.length === 0 && match_count === 0) {
+				self.init_feedback();
+				return;
+			} else if (term_count.length > 0 && match_count === 0) {
+				msg = "No matches found";
+			} else {
+				var count = (match_count < settings.max) ? match_count : settings.max;
+				var seeall = (match_count < settings.max) ? "" : " (see all)";
+				msg = "Viewing " + count + " of " + match_count + seeall;
+			}
+			$(feedback).html(msg);
+		}
+		
+		
 		self.filter = function(term, regex) {
+			settings.term = term;
 			settings.regex = regex;
 			
 			if (term.length > 0) {
-				//return self.get_filtered();
 				var filtered = self.get_filtered();
-				//return filtered;
 				self.set_feedback(filtered.length);
-				//self.print_list( self.limit(filtered) );	
+				self.print_list( self.limit(filtered) );	
 			} else {
-				//self.initialize_list();
+				self.initialize_list();
 			}
 		}
 		
@@ -346,12 +185,23 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 					arr.push(settings.data[i]);
 				}
 			});
-			return self.limit(arr);
+			return arr;
+		}
+		
+		self.return_filtered = function(regex) {
+			var arr = [];
+			$(settings.data).each(function(i, item){
+				var node = item[settings.filter_against] || item;
+				if ( regex.test(node) ) {
+					arr.push(item);
+				}
+			});
+			return arr;
 		}
 		
 		
 
-		return self; //FilterableList
+		return self; //List
 	}
 
 	var NamesList = function(settings) {
@@ -364,7 +214,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			self.clear_list();
 
 			$.each(filtered, function(i, item) {
-				settings.element.append( self.template(item, i) );
+				settings.ul.append( self.template(item, i) );
 				get_image(item.headshot_url, 'id'+i, settings.term.length);
 			});
 		}
@@ -406,7 +256,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			settings.term = term;
 			settings.regex = regex;
 			
-			//print_list(settings.data);
+			print_list(settings.data);
 		}
 		
 		self.template = function(data) {
@@ -417,13 +267,265 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	}
 	
 	
+	var Card = function(settings) {
+		var self = {};
+		
+		var name = settings.name,
+			el = settings.el,
+			close_el = settings.close_el,
+			data = settings.data;
+		
+		
+		//Private		
+		
+
+		populate_card = function() {
+			//full name
+			$(el).find('#name').text(data.full_name);
+
+			el.find('#headshot').attr('src', data.headshot_url);
+			el.find('#pops').attr('href', data.profile_url);
+
+			$(data.faculty_appointments).each(function(i){
+				$('#appointments').append('<p>' + this.title + '<br><em>' + this.institution + '</em></p>');
+			});
+
+			el.find('#phone').text(data.phone || "N/A");
+			el.find('#fax').text(data.phone || "N/A");
+			el.find('#address').text(data.address || "N/A");
+			
+			var expertise = List({
+				'data' : data.expertise,
+				'id' : '#expertise_holder',
+				'max' : 40
+			}).multi_column(4);
+			el.find('#expertise div').html( expertise );	
+		}
+		
+		//Public	
+		self.show = function() {
+			populate_card();
+			 
+			el.fadeIn();
+			
+			//close card listener
+			close_el.click(function(){
+				self.close_card();
+			});
+		}
+		
+		self.close_card = function() {
+			el.fadeOut();
+			$(context.settings.inputId).focus();
+			$('#card').find('#appointments').html("");
+		}
+		
+		
+		return self;
+	} // Card
+	
+	
+	/* 
+		Tabs Class
+	*/
+	var Tab = function(settings) {
+		
+		var self = {};
+		
+		var control = settings.control,
+			panel = settings.panel;
+			
+			settings.list = [];
+			
+		self.activate = function() {
+			control.addClass('active');
+			panel.fadeIn();
+		}
+		
+		self.deactivate = function(callback) {
+			control.removeClass('active');
+			
+			//callback executes after current panel fades out
+			panel.fadeOut(function(){
+				if ( $.isFunction(callback) ) {
+					callback();
+				}
+			});
+		}
+		
+		self.prepare = function() {
+			control.addClass('active');
+		}
+		
+		self.register_list = function(li) {
+			//adds List to (obj) list dictionary
+			settings.list.push(li);
+		}
+		
+		self.get_control = function() {
+			return settings.control;
+		}
+		
+		self.get_panel = function() {
+			return settings.panel;
+		}
+		
+		self.get_list = function() {
+			return settings.list;
+		}
+		
+		self.do_filter = function(term, regex) {
+			lists.names.filter(term,regex);
+			lists.specialties.filter(term, regex);
+			lists.services.filter(term, regex);
+		}
+		
+		return self;
+	}
+	
+	var EverythingTab = function(settings) {
+		self = Tab(settings);
+		
+		self.print_list = function(list, filtered) {
+			list.clear_list();
+
+			$.each(filtered, function(i, item) {
+				settings.ul.append( self.template(item, i) );
+			});
+		}
+		
+		self.do_filter = function(term, regex) {
+			var filtered = lists.names.return_filtered(regex);
+			lists.names.new_feedback(term.length, filtered.length);
+			
+			var el = lists.names.get_element();
+			settings.panel.find(el).find('ul').append('hi');
+			
+			//self.set_feedback(filtered.length);
+			//self.print_list( self.limit(filtered) );
+			
+			
+			//log(filtered.length);
+			//log(filtered);
+			
+			//lists.names.filter(term,regex);
+			lists.specialties.filter(term, regex);
+			lists.services.filter(term, regex);
+		}
+		
+		return self;
+	}
+	
+	var NamesTab = function(settings) {
+		self = Tab(settings);
+		
+		self.do_filter = function(term, regex) {
+			//lists.names.filter(term,regex);
+		}
+		
+		return self;
+	}
+	
+	var SpecialtiesTab = function(settings) {
+		self = Tab(settings);
+		
+		self.do_filter = function(term, regex) {
+			lists.specialties.filter(term,regex);
+		}
+		
+		return self;
+	}
+
+	var ServicesTab = function(settings) {
+		self = Tab(settings);
+		
+		self.do_filter = function(term, regex) {
+			lists.services.filter(term,regex);
+		}
+		
+		return self;
+	}
+	
+	
+	//View Manager - how the app interfaces with View(s)
+	tab_manager.activate_listener = function() {
+		$.each(tabs, function(i, item){
+			item.get_control().click(function(){
+				tab_manager.activate_tab(item);
+			});
+		});	
+	}
+	
+	//call this method whenever you want to show a new view
+	tab_manager.activate_tab = function(tab) {
+		if (this.get_active() !== tab) {
+			tab.prepare();
+			this.switch_handler(tab);
+			this.register_active(tab);
+			
+			//natural place for List interface commands
+		} else {
+			log('view is already active');
+			return;
+		}
+	}
+	
+	// do not call this method directly, call activate_view
+	tab_manager.switch_handler = function(next) {
+		if (this.get_active()) {
+			tab_manager.active.deactivate(function(){
+				next.activate();
+			});
+		} else {
+			next.activate();
+		}
+	}
+	
+	tab_manager.register_active = function(view) {
+		tab_manager.active = view;
+	}
+	
+	tab_manager.get_active = function() {
+		return tab_manager.active;
+	}
+	
+	//fires setup when all 3 lists have loaded, solves non-sequential firing problem
+	tab_manager.list_has_loaded = function() {
+		list_loaded++;
+		if (list_loaded === 3) {
+			this.initial_setup();
+		}
+	}
+	
+	tab_manager.initial_setup = function() {
+		tab_manager.activate_listener();
+		
+		lists.services.print_all();
+		lists.names.init_feedback();
+		lists.specialties.init_feedback();
+		
+		tabs.everything.activate();
+		tab_manager.register_active(tabs.everything);
+	}
+	
+	tab_manager.on_input_event = function(term) {
+		regex = new RegExp('\\b' + term, "i");
+		
+		tab_manager.active.do_filter(term, regex);
+		
+		card_manager(term);
+	}
 	
 	
 	
+	var object_to_array = function(object) {
+		var a = [];
+		$(object).each(function(i, item){
+			a.push(item);
+		});
+		return a;
+	}
 	
-	/*
-		App Private Methods
-	*/	
 	var get_json_node = function(term, source, attribute) {
 		var regex = new RegExp('^'+term),
 			ret = {};
@@ -437,6 +539,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		return ret;
 	}
 	
+	//private methods
 	var get_image = function(url, el, count) {
 		var el = '#'+el;
 
@@ -455,94 +558,94 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 				.attr('src', url);
 		}
 	}
-	
-	var on_input_event = function(term) {
-		regex = new RegExp('\\b' + term, "i");
-		
-		var view = view_manager.get_active();
-		view.display_filtered(term, regex);
-		
-		card_manager(term);
-	}
-	
+
 	var clear_input = function(focus) {
 		$(context.settings.inputId).val("");
 		if (focus !== "undefined" && focus) {
 			$(context.settings.inputId).focus();
 		}
-		term = "";
 	}
 	
+	var card_manager = function(term) {
+		if (card) {
+			card.close_card();
+			card = false;
+		} else {
+			$('#last-name').find('.name_item').each(function(){
+				$(this).click(function(){
+					log($(this).find('.name').text());
+					//establish new Card
+					card = Card({
+						'name' : $(this).find('.name').text(),
+						'el' : $(context.settings.card),
+						'close_el' : $(context.settings.card_close),
+						'data' : get_json_node($(this).find('.name').text(), json.names, 'full_name')
+					});
+					card.show();
+				});
+			});
+		}
+	}
 	
-	var main = function() { 
+	var main = function() {
 		//initialize to empty text field
 		clear_input(true);
 		
 		
-		//Establish Views
-		views.everything = EverythingView({
+		//Establish Tabs
+		tabs.everything = EverythingTab({
 			'control' : $('#control0'),
 			'panel' : $('#view0')
 		});
 		
-		views.names = View({
+		tabs.names = NamesTab({
 			'control' : $('#control1'),
 			'panel' : $('#view1')
 		});
 		
-		views.specialties = View({
+		tabs.specialties = SpecialtiesTab({
 			'control' : $('#control2'),
 			'panel' : $('#view2')
 		});
 		
-		views.services = View({
+		tabs.services = ServicesTab({
 			'control' : $('#control3'),
 			'panel' : $('#view3')
 		});
 		
-		//Establish Data and Lists
-		$.getJSON(context.settings.data, function(data){
-			//For Last Names
-			lists.names = NamesList({
-				'data' : data.physicians,
-				'element' : $('.last-name')
-			});
-			views.everything.register_list(lists.names);
-			views.names.register_list(lists.names);
-			view_manager.list_is_ready();
-				
-			//For Specialties
-			lists.specialties = SpecialtiesList({
-				'data' : data.specialties,
-				'element' : $('.specialties')
-			});
-			views.everything.register_list(lists.specialties);
-			views.specialties.register_list(lists.specialties);
-			view_manager.list_is_ready();
-        });
+		
 		
 		$.getJSON(context.settings.services, function(data){
-			//For Services
 			lists.services = ServicesList({
 				'data' : data.services,
-				'element' : $('.services')
+				'id' : '.services',
+				'ul' : $('.services').find('ul')
 			});
-			views.everything.register_list(lists.services);
-			views.services.register_list(lists.services);
-			view_manager.list_is_ready();
+			//lists.services.print_all();
+			tab_manager.list_has_loaded();
 		});
-
-
-		//bind the keyup event, publish value
-		$(context.settings.inputId).keyup(function(){
-			view_manager.on_input_event( $(this).val() );
-		});		
+		
+		$.getJSON(context.settings.data, function(data){
+			json.names = data.physicians;
+			lists.names = NamesList({
+				'data' : data.physicians,
+				'id' : '.last-name',
+				'ul' : $('.last-name').find('ul'),
+				'max' : 6
+			});
+			tab_manager.list_has_loaded();
+			
+			lists.specialties = SpecialtiesList({
+				'data' : data.specialties,
+				'id' : '.specialties',
+				'ul' : $('.specialties').find('ul'),
+				'max' : 12
+			});
+			tab_manager.list_has_loaded();
+        });
 	}
 	
 	
-	/*
-		Public
-	*/
 	context.init = function(options) {
 		context.settings = {
 			data : 'js/data.json',
@@ -554,10 +657,23 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			base_url : "http://cornellsurgery.org/patients/"
 		};
 		
+		
 		main();
+		
+		
+		//establish data then show lists
+		//initialize_data(function(){
+			//$(context.settings.results).fadeIn();
+		//});
+
+		//bind the keyup event, publish value
+		$(context.settings.inputId).keyup(function(){
+			tab_manager.on_input_event( $(this).val() );
+		});
 	}
 	
 })(SRCH);
+
 
 
 $(document).ready(function() {
