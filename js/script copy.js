@@ -9,168 +9,15 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	var settings = {}
 
 	var lists = {},
-		list_gotten_count = 0;
 		json = {},
 		views = {},
 		view_manager = {},
-		card = false,
-		term = $(context.inputId).val();
+		card = false;
 		
 		view_manager.lists = [];
 	
-	
-	
-	
 	/*
-		View Class (i.e. Tabs)
-	*/
-	var View = function(settings) {
-		var self = {};
-		
-		var control = settings.control,
-			panel = settings.panel;
-			
-			
-			settings.list = [];
-			
-			
-		self.activate = function(callback) {
-			control.addClass('active');
-			panel.fadeIn();
-			
-			if ( $.isFunction(callback) ) {
-				callback();
-			}
-		}
-		
-		self.deactivate = function(callback) {
-			control.removeClass('active');
-			
-			//callback executes after current panel fades out
-			panel.fadeOut(function(){
-				if ( $.isFunction(callback) ) {
-					callback();
-				}
-			});
-		}
-		
-		self.prepare = function() {
-			control.addClass('active');
-		}
-		
-		self.register_list = function(li) {
-			//adds List to (obj) list dictionary
-			settings.list.push(li);
-		}
-		
-		self.list_action = function() {
-			
-		}
-		
-		self.get_control = function() {
-			return settings.control;
-		}
-		
-		self.get_panel = function() {
-			return settings.panel;
-		}
-		
-		self.get_list = function() {
-			return settings.list;
-		}
-		
-		return self;
-	}
-	
-	var EverythingView = function(settings) {
-		var self = View(settings);
-		
-		self.print_list = function() {
-			log(term);
-			settings.list[0].filter();
-		}
-		
-		self.initialize = function() {
-			$.each(settings.list, function(i, item){
-				this.init_feedback();
-			});
-			
-			settings.list[2].print_all(); 
-		}
-		
-		return self;
-	}
-	
-	//View Manager - how the app interfaces with View(s)
-	view_manager.activate_listener = function(view) {
-		$.each(views, function(i, item){
-			item.get_control().click(function(){
-				view_manager.activate_view(item);
-			});
-		});	
-	}
-	
-	//call this method whenever you want to show a new view
-	view_manager.activate_view = function(view) {
-		if (this.get_active() !== view) {
-			view.prepare();
-			this.switch_handler(view);
-			this.register_active(view);
-			
-			
-			view.print_list();
-			//natural place for List interface commands
-			$.each(view.get_list(), function(i, item){
-				//item.get_element().append("hi");
-			});
-		} else {
-			log('view is already active');
-			return;
-		}
-	}
-	
-	// do not call this method directly, call activate_view
-	view_manager.switch_handler = function(next) {
-		if (this.get_active()) {
-			view_manager.active.deactivate(function(){
-				next.activate();
-			});
-		} else {
-			next.activate();
-		}
-	}
-	
-	view_manager.register_active = function(view) {
-		view_manager.active = view;
-	}
-	
-	view_manager.get_active = function() {
-		return view_manager.active;
-	}
-	
-	view_manager.on_input_event = function(term) {
-		var regex = new RegExp('\\b' + term, "i");
-		log(term);
-		
-		//another natural place for List interface commands
-		// mr. view, please have your lists filter for term and then show the results
-	}
-	
-	//fires setup when all 3 lists have loaded, solves non-sequential firing problem
-	view_manager.list_is_ready = function() {
-		list_gotten_count++;
-		if (list_gotten_count === 3) {
-			//Setup view manager
-			view_manager.activate_listener();
-			view_manager.activate_view(views.everything);
-		}
-	}
-	
-	
-	
-	
-	/*
-		List Class
+		List Classes
 	*/
 	var List = function(settings) {
 		var self = {};
@@ -201,6 +48,13 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		}
 		
 		//public
+		self.print_list = function(filtered) {
+			self.clear_list();
+
+			$.each(filtered, function(i, item) {
+				settings.ul.append( self.template(item, i) );
+			});
+		}
 		
 		self.get_list_sinlge_column = function() {
 			var ret = '<ul>';
@@ -282,7 +136,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		
 		return self; //List
 	} //List
-	
+		
 	var FilterableList = function(settings) {
 		var self = List(settings);
 
@@ -327,10 +181,10 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			settings.regex = regex;
 			
 			if (term.length > 0) {
-				//return self.get_filtered();
-				var filtered = self.get_filtered();
+				return self.get_filtered();
+				//var filtered = self.get_filtered();
 				//return filtered;
-				self.set_feedback(filtered.length);
+				//self.set_feedback(filtered.length);
 				//self.print_list( self.limit(filtered) );	
 			} else {
 				//self.initialize_list();
@@ -417,13 +271,234 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	}
 	
 	
+	/*
+		Card Class
+	*/
+	var Card = function(settings) {
+		var self = {};
+		
+		var name = settings.name,
+			el = settings.el,
+			close_el = settings.close_el,
+			data = settings.data;
+		
+		//Private		
+		populate_card = function() {
+			//full name
+			$(el).find('#name').text(data.full_name);
+
+			el.find('#headshot').attr('src', data.headshot_url);
+			el.find('#pops').attr('href', data.profile_url);
+
+			$(data.faculty_appointments).each(function(i){
+				$('#appointments').append('<p>' + this.title + '<br><em>' + this.institution + '</em></p>');
+			});
+
+			el.find('#phone').text(data.phone || "N/A");
+			el.find('#fax').text(data.phone || "N/A");
+			el.find('#address').text(data.address || "N/A");
+			
+			var expertise = List({
+				'data' : data.expertise,
+				'id' : '#expertise_holder',
+				'max' : 40
+			}).get_multi_column(4);
+			el.find('#expertise div').html( expertise );	
+		}
+		
+		//Public	
+		self.show = function() {
+			populate_card();
+			 
+			el.fadeIn();
+			
+			//close card listener
+			close_el.click(function(){
+				self.close_card();
+			});
+		}
+		
+		self.close_card = function() {
+			el.fadeOut();
+			$(context.settings.inputId).focus();
+			$('#card').find('#appointments').html("");
+		}
+		
+		return self;
+	} // Card
+	
+	//Card Manager - how the app interfaces with a Card
+	var card_manager = function(term) {
+		if (card) {
+			card.close_card();
+			card = false;
+		} else {
+			$('#last-name').find('.name_item').each(function(){
+				$(this).click(function(){
+					//establish new Card
+					card = Card({
+						'name' : $(this).find('#name').text(),
+						'el' : $(context.settings.card),
+						'close_el' : $(context.settings.card_close),
+						'data' : get_json_node($(this).find('.name').text(), json.names, 'full_name')
+					});
+					card.show();
+				});
+			});
+		}
+	}
 	
 	
+	/*
+		View Class (i.e. Tabs)
+	*/
+	var View = function(settings) {
+		var self = {};
+		
+		var control = settings.control,
+			panel = settings.panel,
+			active = false;
+			
+		self.list = {};
+			
+			
+		self.activate = function(callback) {
+			active = true;
+			control.addClass('active');
+			panel.fadeIn();
+			
+			if ( $.isFunction(callback) ) {
+				callback();
+			}
+			
+			return self;
+		}
+		
+		self.deactivate = function(callback) {
+			active = false;
+			control.removeClass('active');
+			panel.fadeOut(function(){
+				if ( $.isFunction(callback) ) {
+					callback();
+				}
+			});
+			
+			return self;
+		}
+		
+		self.prepare = function() {
+			control.addClass('active');
+		}
+		
+		self.spark_filter = function(term, regex) {
+			$.each(list, function(i){
+				list[i].filter(term, regex);
+			});
+		}
+		
+		self.register_list = function(name, l) {
+			self.list[name] = l;
+		}
+		
+		self.get_list = function() {
+			return self.list;
+		}
+		
+		self.is_active = function() {
+			return active;
+		}
+		
+		self.get_name = function() {
+			return name;
+		}
+		
+		self.get_control = function() {
+			return control;
+		}
+		
+		return self;
+	}
+	
+	var EverythingView = function(settings) {
+		var self = View(settings);
+		
+		var control = settings.control,
+			panel = settings.panel,
+			active = false;
+		
+		self.activate = function() {
+			active = true;
+			settings.control.addClass('active');
+			
+			$.each(self.list, function(){
+				this.init_feedback();
+			});
+			
+			self.list.services.print_all();
+			
+			settings.panel.fadeIn();
+		}
+		
+		self.display_filtered = function(term, regex) {
+			self.list.names.set_limit(6);
+			var filtered_ln = self.list.names.filter(term, regex);
+			log(filtered_ln.length);
+			self.list.names.clear_list();
+			self.list.names.print_list(filtered_ln);
+			
+			//self.list.names.print(filtered_ln);
+			
+			
+			//self.list.specialties.filter(term, regex);
+			//self.list.services.filter(term, regex);
+		}
+		
+		
+		return self;
+	}
+	
+	
+	//View Manager - how the app interfaces with View(s)
+	view_manager.init = function(view) {
+		view_manager.register_active(view);
+		view.activate();
+		
+		
+		$.each(views, function(i, item){
+			item.get_control().click(function(){
+				view_manager.switch_active(item);
+			});
+		});	
+	}
+	
+	view_manager.switch_active = function(next) {
+		next.prepare();
+		view_manager.active.deactivate(function(){
+			view_manager.register_active(next);
+			next.activate();
+		});
+	}
+	
+	view_manager.register_active = function(el) {
+		view_manager.active = el;
+	}
+	
+	view_manager.get_active = function() {
+		return view_manager.active;
+	}
 	
 	
 	/*
 		App Private Methods
-	*/	
+	*/
+	var object_to_array = function(object) {
+		var a = [];
+		$(object).each(function(i, item){
+			a.push(item);
+		});
+		return a;
+	}
+	
 	var get_json_node = function(term, source, attribute) {
 		var regex = new RegExp('^'+term),
 			ret = {};
@@ -470,8 +545,8 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		if (focus !== "undefined" && focus) {
 			$(context.settings.inputId).focus();
 		}
-		term = "";
 	}
+	
 	
 	
 	var main = function() { 
@@ -500,43 +575,54 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			'panel' : $('#view3')
 		});
 		
-		//Establish Data and Lists
+		
+		
+		// Get Last Names & Specialties Data
+		// register lists with their views
 		$.getJSON(context.settings.data, function(data){
-			//For Last Names
+			// Last Names
+			json.names = data.physicians;
 			lists.names = NamesList({
 				'data' : data.physicians,
 				'element' : $('.last-name')
 			});
-			views.everything.register_list(lists.names);
-			views.names.register_list(lists.names);
-			view_manager.list_is_ready();
-				
-			//For Specialties
+			views.names.register_list('names', lists.names);
+			views.everything.register_list('names', lists.names);
+			
+			//Specialties
+			json.specialties = data.specialties;
 			lists.specialties = SpecialtiesList({
 				'data' : data.specialties,
 				'element' : $('.specialties')
 			});
-			views.everything.register_list(lists.specialties);
-			views.specialties.register_list(lists.specialties);
-			view_manager.list_is_ready();
-        });
-		
-		$.getJSON(context.settings.services, function(data){
-			//For Services
-			lists.services = ServicesList({
-				'data' : data.services,
-				'element' : $('.services')
-			});
-			views.everything.register_list(lists.services);
-			views.services.register_list(lists.services);
-			view_manager.list_is_ready();
-		});
+			views.specialties.register_list('specialties', lists.specialties);
+			views.everything.register_list('specialties', lists.specialties);
+			
+			
+			
+			// Get Services Data 
+			// Establish Services View
+			// Establish Services List
+			$.getJSON(context.settings.services, function(data){
+				json.services = data.services;
+				lists.services = ServicesList({
+					'data' : data.services,
+					'element' : $('.services')
+				});
+				views.services.register_list('services', lists.services);
+				views.everything.register_list('services', lists.services);
+				view_manager.init(views.everything);
+			}); //get.services
+			
+        });	//get.data
+
 
 
 		//bind the keyup event, publish value
 		$(context.settings.inputId).keyup(function(){
-			view_manager.on_input_event( $(this).val() );
-		});		
+			on_input_event( $(this).val() );
+		});
+		
 	}
 	
 	

@@ -334,11 +334,12 @@ body {
 			float: left;
 			width: 780px;
 			padding-top: 25px;
+			margin-right: 0;
 		}
 	
     /* structure */
     
-    #last-name, #specialties, #services {
+    .last-name, .specialties, .services {
         float: left;
 		height: 423px;
 		width: 248px;
@@ -347,7 +348,7 @@ body {
 		overflow: hidden;
     }
     
-   #services {
+   #view0 .services {
        float: right;
        width: 228px;
        margin-right: 0px;
@@ -358,22 +359,22 @@ body {
        
    }
 
-	#last-name ul li:hover {
+	.last-name ul li:hover {
 		cursor: pointer;
 	}
 	
-	#last-name ul li div.image {
+	.last-name ul li div.image {
 		float: left;
 		width: 34px;
 		height: 51px;
 		margin-right: 5px;
 	}
 	
-		#last-name ul li .loading {
+		.last-name ul li .loading {
 			background: #f7f9fa url("../images/ajax-loader.gif") no-repeat center center;
 		}
 		
-		#last-name ul li img {
+		.last-name ul li img {
 			width: 34px;
 			height: 51px;
 		}
@@ -527,7 +528,7 @@ body {
 		display: none;
 	}
 	
-	#last-name ul li {
+	.last-name ul li {
 		display: block;
 		margin-bottom: 7px;
 		font-size: 12px;
@@ -540,7 +541,7 @@ body {
 		color: #003656;
 	}
 	
-		#last-name ul li .name {
+		.last-name ul li .name {
 			float: left;
 			width: 200px;
 			padding-left: 3px;
@@ -548,7 +549,7 @@ body {
 			margin-bottom: 4px;
 		}
 		
-		#last-name ul li .prac_spec {
+		.last-name ul li .prac_spec {
 			float: left;
 			width: 200px;
 			padding-left: 3px;
@@ -556,11 +557,11 @@ body {
 			font-size: 10px;
 		}
 	
-		#last-name ul li:hover {
+		.last-name ul li:hover {
 			background-color: #e4ebf0;
 		}
 	
-	#specialties ul li a {
+	.specialties ul li a {
 		display: block;
 		float: left;
 		width: 100%;
@@ -570,7 +571,7 @@ body {
 		text-decoration: none;
 	}
 	
-		#specialties ul li a:hover {
+		.specialties ul li a:hover {
 			background-color: #e4ebf0;
 		}
 
@@ -585,15 +586,15 @@ body {
 		margin-bottom: 8px;
 	}
    
-   #services header {
+   .services header {
        margin-left: 5px;
    }
    
-	#services ul li {
+	.services ul li {
 		
 	}
    
-   #services ul li a {
+   .services ul li a {
        display: block;
        padding: 7px;
        font-size: 10px;
@@ -601,7 +602,7 @@ body {
        text-decoration: none;
    }
        
-       #services ul li a:hover {
+       .services ul li a:hover {
            background-color: #d7e0e9;
            color: #1e374f;
        }
