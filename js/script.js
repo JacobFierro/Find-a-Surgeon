@@ -9,23 +9,135 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	var settings = {};
 
 	//new and needed
-	var lists = {},
-		list_loaded = 0,
+	var num_json_loaded = 0,
 		json = {},
 		tabs = {},
 		tab_manager = {},
-		card = false;
+		card = false,
+		regex = null;
 	
 	
 	var List = function(settings) {
 		var self = {};
 		
 		var data = settings.data,
-			id = settings.id, //wrapper div
-			ul = settings.ul, //jQuery element
-			max = settings.max; //optional max items to display
+			id = settings.id; //wrapper div
 		
+		self.get_element = function() {
+			return settings.id;
+		}
 		
+		self.get_all = function() {
+			var ret = [];
+			$.each(data, function(i, item) {
+				ret.push(item);
+			});
+			return ret;
+		}
+		
+		self.get_length = function() {
+			return settings.data.length;
+		}
+		
+		return self; //List
+	} //List
+		
+	var FilterableList = function(settings) {
+		var self = List(settings);
+
+		//private vars
+		var feedback = $(settings.id).find('.feedback');
+		
+		//Instance Variables
+		self.filtered = [];
+		
+		//sets self.filtered
+		self.filter = function(term, regex) { //saves the filtered list to the instance variable
+			settings.term = term;
+			settings.regex = regex;
+			
+			if (term.length > 0) {
+				self.filtered = self.filter_tester(regex);
+			} else {
+				self.filtered = [];
+			}
+		}
+		
+		// tests node against regex, returns array
+		self.filter_tester = function(regex) {
+			var arr = [];
+			$(settings.data).each(function(i, item){
+				var node = item[settings.filter_against] || item;
+				if ( regex.test(node) ) {
+					arr.push( item );
+				}
+			});
+			return arr;
+		}
+		
+		// returns array
+		self.get_filtered = function() {
+			return self.filtered;
+		}
+
+		self.get_length = function() {
+			return self.filtered.length;
+		}
+
+		return self; //List
+	}
+
+	var NamesList = function(settings) {
+		var self = FilterableList(settings);
+		
+		settings.filter_against = "last_name";
+		
+		return self;
+	}
+	
+	var SpecialtiesList = function(settings) {
+		var self = FilterableList(settings);
+
+		//Nothing here, but leaving it for future use
+
+		return self;
+	}
+	
+	var ServicesList = function(settings) {
+		var self = FilterableList(settings);
+		
+		settings.filter_against = "title";
+		
+		//required because services do not filter out
+		self.filter = function(term, regex) { 
+			settings.term = term;
+			settings.regex = regex;
+			
+			var arr = [];
+			$(settings.data).each(function(i, item){
+				arr.push( item );
+			});
+			self.filtered = arr;
+		}
+		
+		return self;
+	}
+	
+	
+	
+	/*
+		List Printer 
+	*/
+	var ListPrinter = function(settings) {
+		var self = {};
+		
+		var panel = settings.panel,
+			target = settings.target,
+			ul = panel.find(settings.target).find('ul'),
+			feedback = panel.find(settings.target).find('.feedback'),
+			max = null,
+		
+		//multi-col, TODO needs better implementation
 		list_balancer = function(list, sections) {
 			var depth = Math.ceil(list.length / sections);
 				ret = [],
@@ -47,242 +159,44 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			return a;
 		}
 		
-		//public
-		self.print_all = function() {
-			try {
-				self.clear_list();
-				$(settings.data).each(function(i, item){
-					ul.append(self.template(item, i));
-				});
-			} catch(e) {
-				log(new Error(e));
-			}
-		}
-		
-		self.template = function(data) {
-			return '<li>' + data + '</li>';
-		}
-		
-		self.multi_column = function(num_cols) {
-			var ret = "";
+		self.print_list_multi_column = function( list, num_cols ) {
+			var limited = self.limit( list );
+			var balanced = list_balancer( limited, num_cols );
 			
-			var balanced = list_balancer( self.limit(object_to_array(data).sort()), num_cols);
-
+			var html = "";
 			$(balanced).each(function(i, item){
-				ret += "<ul>";
+				html += '<ul>';
 				$(item).each(function(i, item){
-					ret += "<li>" + item + "</li>";
-				});
-				ret += "</ul>";
+					html += self.template(item);
+				});	
+				html += '</ul>';
 			});
-
-			return ret;
-		}
-		
-		self.get_element = function() {
-			return settings.id;
-		}
-		
-		self.get_all = function() {
-			var ret = [];
-			$.each(data, function(i, item) {
-				ret.push(item);
-			});
-			return ret;
-		}
-		
-		return self; //List
-	} //List
-		
-	var FilterableList = function(settings) {
-		var self = List(settings);
-
-		//private vars
-		var feedback = $(settings.id).find('.feedback'),
-			regex = settings.regex,
-			max = settings.max,
-			term = settings.term;
-		
-		//Instance Variables
-		self.filtered = [];
-		
-		//public methods
-		//used by template
-		self.get_matched_string = function(item) {
-			return item.replace(settings.regex, '<span class="match">'+ item.match(settings.regex) +'</span>');
-		};
-		
-		
-		
-		//these need to go, being called by tab_manager.initial_setup
-		self.initialize_list = function() {
-			settings.ul.html("");
-			self.set_feedback(0);
-		}
-		
-		self.set_feedback = function(match_count) {
-			var msg = "";
-				matched = match_count || 0;
 			
-			if (settings.term.length === 0 && match_count === 0) {
-				self.init_feedback();
-				return;
-			} else if (settings.term.length > 0 && match_count === 0) {
-				msg = "No matches found";
-			} else {
-				var count = (match_count < settings.max) ? match_count : settings.max;
-				var seeall = (match_count < settings.max) ? "" : " (see all)";
-				msg = "Viewing " + count + " of " + match_count + seeall;
-			}
-			$(feedback).html(msg);
-		}
-		
-		self.init_feedback = function() {
-			$(feedback).html("Enter a term to begin search.");
+			$(target).html(html);
 		}
 		
 		
-		
-		
-		
-		
-		
-		
-		
-		//sets self.filtered
-		self.filter = function(term, regex) { //saves the filtered list to the instance variable
-			settings.term = term;
-			settings.regex = regex;
-			
-			if (term.length > 0) {
-				self.filtered = self.filter_tester(regex);
-			} else {
-				self.filtered = [];
-			}
-		}
-		
-		// tests node against regex, returns array
-		self.filter_tester = function(regex) {
-			var arr = [];
-			$(settings.data).each(function(i, item){
-				var node = item[settings.filter_against] || item;
-				if ( regex.test(node) ) {
-					arr.push( self.template(item) );
-				}
-			});
-			return arr;
-		}
-		
-		// returns array
-		self.get_filtered_list = function() {
-			return self.filtered;
-		}
-
-		return self; //List
-	}
-
-	var NamesList = function(settings) {
-		var self = FilterableList(settings);
-		
-		settings.filter_against = "last_name";
-		
-		self.filter_tester = function(regex) {
-			var arr = [];
-			$(settings.data).each(function(i, item){
-				var node = item[settings.filter_against] || item;
-				if ( regex.test(node) ) {
-					arr.push( item );
-				}
-			});
-			return arr;
-		}
-			
-		self.template = function(data, id) {
-			var temp = '<li class="name_item">';
-				temp += '<div class="image loading" id="id'+ id +'"></div>';
-				temp += '<div class="name">' + self.get_matched_string(data.full_name) + '</div>';
-				temp += (data.practicing_specialty) ? '<div class="prac_spec">'+ data.practicing_specialty  +'</div></li>' : "";
-			return temp;
-		};
-
-		return self;
-	}
-	
-	var SpecialtiesList = function(settings) {
-		var self = FilterableList(settings);
-
-		//public methods
-		self.template = function(data) {
-			return '<li><a href="search.html#'+ data +'">' + self.get_matched_string(data) + '</a></li>';
-		}
-
-		return self;
-	}
-	
-	var ServicesList = function(settings) {
-		var self = FilterableList(settings);
-		
-		settings.filter_against = "title";
-		
-		//sets self.filtered
-		self.filter = function(term, regex) { //saves the filtered list to the instance variable
-			settings.term = term;
-			settings.regex = regex;
-			
-			var arr = [];
-			$(settings.data).each(function(i, item){
-				arr.push( self.template(item) );
-			});
-			self.filtered = arr;
-		}
-		
-		self.template = function(data) {
-			return '<li><a href="'+ context.settings.base_url + data.path + '">' + self.get_matched_string(data.title) + '</a></li>';
-		}
-		
-		return self;
-	}
-	
-	
-	
-	/*
-		List Printer 
-	*/
-	var ListPrinter = function(settings) {
-		var self = {};
-		
-		var items = settings.items,
-			panel = settings.panel,
-			target = settings.target,
-			ul = panel.find(settings.target).find('ul'),
-			feedback = panel.find(settings.target).find('.feedback'),
-			max = null,
-			term = settings.term;
-		
+		//Public
 		self.clear_list = function() {
 			ul.html("");
 		}
 		
-		self.print_list = function() {
+		self.print_list = function( list ) {
 			self.clear_list();
-			self.set_feedback();
-			var limited = self.limit(items);
+			var limited = self.limit( list );
 			$.each(limited, function(i, item){
-				ul.append(item);
+				ul.append( self.template(item) );
 			});
 		}
 		
-		self.print_names_list = function() {
-			var list = lists.names;
-			
+		self.print_names_list = function( list ) {
 			self.clear_list();
-			self.set_feedback();
-			var limited = self.limit(items);
+			var limited = self.limit(list);
 			$.each(limited, function(i, item){
-				ul.append( list.template(item, i) );
-				self.print_image(item.headshot_url, 'id'+i, settings.term.length);
+				ul.append( self.template(item, i) );
+				self.print_image(item.headshot_url, 'id'+i, i);
 			});
-			card_manager(term);
+			//card_manager( get_term() );
 		}
 		
 		self.print_services_list = function() {
@@ -319,14 +233,13 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			return (settings.max) ? all.slice(0, settings.max) : all;
 		}	
 		
-		self.set_feedback = function() {
+		self.set_feedback = function(term, match_count) {
 			var msg = "";
-				match_count = items.length || 0;
 			
-			if (settings.term.length === 0 && match_count === 0) {
+			if (term.length === 0 && match_count === 0) {
 				self.init_feedback();
 				return;
-			} else if (settings.term.length > 0 && match_count === 0) {
+			} else if (term.length > 0 && match_count === 0) {
 				msg = "No matches found";
 			} else {
 				var count = (match_count < settings.max) ? match_count : settings.max;
@@ -339,10 +252,53 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		self.init_feedback = function() {
 			feedback.html("Enter a term to begin search.");
 		}
+		
+		//used by template, TODO needs access to regex
+		self.get_matched_string = function(item) {
+			var regex = get_regex();
+			return item.replace(regex, '<span class="match">'+ item.match(regex) +'</span>');
+		};
+		
+		self.template = function(data) {
+			return '<li>' + data + '</li>';
+		}
 			
 		return self;
 	}
 	
+	var NamesPrinter = function(settings) {
+		var self = ListPrinter(settings);
+		
+		self.template = function(data, id) {
+			var temp = '<li class="name_item">';
+				temp += '<div class="image loading" id="id'+ id +'"></div>';
+				temp += '<div class="name">' + self.get_matched_string(data.full_name) + '</div>';
+				temp += (data.practicing_specialty) ? '<div class="prac_spec">'+ data.practicing_specialty  +'</div></li>' : "";
+			return temp;
+		};
+		
+		return self;
+	}
+	
+	var SpecialtiesPrinter = function(settings) {
+		var self = ListPrinter(settings);
+		
+		self.template = function(data) {
+			return '<li><a href="search.html#'+ data +'">' + self.get_matched_string(data) + '</a></li>';
+		}
+		
+		return self;
+	}
+	
+	var ServicesPrinter = function(settings) {
+		var self = ListPrinter(settings);
+		
+		self.template = function(data) {
+			return '<li><a href="'+ context.settings.base_url + data.path + '">' + self.get_matched_string(data.title) + '</a></li>';
+		}
+		
+		return self;
+	}
 	
 	
 	/*
@@ -354,19 +310,19 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		var name = settings.name,
 			el = settings.el,
 			close_el = settings.close_el,
-			data = settings.data;
+			data = settings.data,
+			expertise;
 		
 		
 		//Private		
-		
-
 		populate_card = function() {
 			//full name
 			$(el).find('#name').text(data.full_name);
 
 			el.find('#headshot').attr('src', data.headshot_url);
 			el.find('#pops').attr('href', data.profile_url);
-
+			
+			$('#appointments').html("");
 			$(data.faculty_appointments).each(function(i){
 				$('#appointments').append('<p>' + this.title + '<br><em>' + this.institution + '</em></p>');
 			});
@@ -375,12 +331,21 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			el.find('#fax').text(data.phone || "N/A");
 			el.find('#address').text(data.address || "N/A");
 			
-			var expertise = List({
+			expertise = List({
 				'data' : data.expertise,
 				'id' : '#expertise_holder',
 				'max' : 40
-			}).multi_column(4);
-			el.find('#expertise div').html( expertise );	
+			});
+			
+			var printer = ListPrinter({
+				'panel' : settings.el.parent(),
+				'target' : expertise.get_element()
+			});
+			
+			printer.set_limit(40);
+			printer.print_list_multi_column( expertise.get_all(), 4 );
+			
+			//el.find('#expertise div').html( expertise );	
 		}
 		
 		//Public	
@@ -463,44 +428,107 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			lists.services.filter(term, regex);
 		}
 		
+		self.list_handler = function() {
+			
+		}
+		
+		self.initial_setup = function() {
+			log('why');
+		}
+		
+		
 		return self;
-	}
 	
+	}
+		
 	var EverythingTab = function(settings) {
 		self = Tab(settings);
 		
-		self.do_list = function(term, regex) {
-			$.each(settings.list, function(i, item){
-				item.filter(term, regex);
-			});
-			
-			services_printer = ListPrinter({
-				'items' : settings.list[0].get_filtered_list(),
-				'panel' : settings.panel,
-				'target' : settings.list[0].get_element(),
-				'max' : 14,
-				'term' : term
-			});
-			services_printer.print_list();
-			
-			names_printer = ListPrinter({
-				'items' : settings.list[1].get_filtered_list(),
-				'panel' : settings.panel,
-				'target' : settings.list[1].get_element(),
-				'max' : 6,
-				'term' : term
-			});
-			names_printer.print_names_list();
-			
-			specialty_printer = ListPrinter({
-				'items' : settings.list[2].get_filtered_list(),
-				'panel' : settings.panel,
-				'target' : settings.list[2].get_element(),
-				'max' : 12,
-				'term' : term
-			});
-			specialty_printer.print_list();
+		var names_list, specialties_list, services_list,
+			name_printer, specialties_printer, services_printer,
+			term = get_term(),
+			regex = get_regex();
+		
+		var initial_state = function() {
+			names_printer.init_feedback();
+			specialties_printer.init_feedback();
+			services_printer.print_list( services_list.get_all() );
 		}
+		
+		self.list_handler = function(term, regex) {
+			// Tell List to process term, does not return
+			names_list.filter(term, regex);
+			specialties_list.filter(term, regex);
+			services_list.filter(term, regex);
+			
+			//Set limits
+			names_printer.set_limit(6);
+			specialties_printer.set_limit(12);
+			services_printer.set_limit(14);
+			
+			//Set Feedback
+			names_printer.set_feedback( term, names_list.get_length() );
+			specialties_printer.set_feedback( term, specialties_list.get_length() );
+			
+			//Print Shit Out
+			names_printer.print_names_list( names_list.get_filtered() );
+			specialties_printer.print_list( specialties_list.get_filtered() );
+			services_printer.print_list( services_list.get_filtered() );
+			
+			//Init Card Manager
+			card_manager( get_term() );
+		}
+
+		self.activate = function() {
+			//Names: List and Printer
+			names_list = NamesList({
+				'data' : json.names,
+				'id' : '.last-name',
+				'ul' : $('.last-name').find('ul')
+			});
+			
+			names_printer = NamesPrinter({
+				'panel' : settings.panel,
+				'target' : names_list.get_element()
+			});
+			
+			
+			//Specialties: List and Printer
+			specialties_list = SpecialtiesList({
+				'data' : json.specialties,
+				'id' : '.specialties',
+				'ul' : $('.specialties').find('ul')
+			});
+			
+			specialties_printer = SpecialtiesPrinter({
+				'panel' : settings.panel,
+				'target' : specialties_list.get_element()
+			});
+			
+			
+			//Services: List and Printer
+			services_list = ServicesList({
+				'data' : json.services,
+				'id' : '.services',
+				'ul' : $('.services').find('ul')
+			});	
+			
+			services_printer = ServicesPrinter({
+				'panel' : settings.panel,
+				'target' : services_list.get_element()
+			});
+			
+			if (term.length > 0) {
+				self.list_handler(term, regex);
+			} else {
+				initial_state();
+			}
+
+			settings.control.addClass('active');
+			settings.panel.fadeIn();
+			
+		}
+		
 		
 		return self;
 	}
@@ -536,6 +564,14 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	}
 	
 	
+	tab_manager.initialize_views = function() {
+		tab_manager.activate_listener();
+		
+		//Everything View is the initial state
+		tab_manager.register_active(tabs.everything);
+		tabs.everything.activate();
+	}
+	
 	//View Manager - how the app interfaces with View(s)
 	tab_manager.activate_listener = function() {
 		$.each(tabs, function(i, item){
@@ -569,6 +605,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			next.activate();
 		}
 		focus_input();
+		card_manager( get_term() );
 	}
 	
 	tab_manager.register_active = function(view) {
@@ -578,36 +615,38 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	tab_manager.get_active = function() {
 		return tab_manager.active;
 	}
+		
+	tab_manager.on_input_event = function(term) {
+		tab_manager.active.list_handler(get_term(), get_regex());
+	}
 	
 	//fires setup when all 3 lists have loaded, solves non-sequential firing problem
-	tab_manager.list_has_loaded = function() {
-		list_loaded++;
-		if (list_loaded === 3) {
-			this.initial_setup();
+	tab_manager.json_has_loaded = function() {
+		num_json_loaded++;
+		if (num_json_loaded === 3) {
+			this.initialize_views();
 		}
 	}
 	
-	tab_manager.initial_setup = function() {
-		tab_manager.activate_listener();
-		
-		
-		//TODO remove this, needs to use ListPrinter instead
-		lists.services.print_all();
-		lists.names.init_feedback();
-		lists.specialties.init_feedback();
-		
-		tabs.everything.activate();
-		tab_manager.register_active(tabs.everything);
+	card_manager = function(term) {
+		if (card) {
+			card.close_card();
+			card = false;
+		} else {
+			$('.last-name').find('.name_item').each(function(){
+				$(this).click(function(){
+					//establish new Card
+					card = Card({
+						'name' : $(this).find('.name').text(),
+						'el' : $(context.settings.card),
+						'close_el' : $(context.settings.card_close),
+						'data' : get_json_node($(this).find('.name').text(), json.names, 'full_name')
+					});
+					card.show();
+				});
+			});
+		}
 	}
-	
-	tab_manager.on_input_event = function(term) {
-		
-		//TODO leading spaces ignored, non-letter chars ignored
-		regex = new RegExp('\\b' + term, "i");
-		
-		tab_manager.active.do_list(term, regex);
-	}
-	
 	
 	
 	var object_to_array = function(object) {
@@ -651,6 +690,23 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		}
 	}
 
+	var get_term = function() {
+		return $(context.settings.inputId).val();
+	}
+
+	var set_regex = function(term) {
+		regex = new RegExp('\\b' + term, "i");
+	}
+	
+	var get_regex = function() {
+		if (typeof regex === 'Object') {
+			return regex;
+		} else {
+			regex = new RegExp('\\b' + get_term(), "i");
+			return regex;
+		}
+	}
+
 	var clear_input = function(focus) {
 		$(context.settings.inputId).val("");
 		if (focus !== "undefined" && focus) {
@@ -662,25 +718,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		$(context.settings.inputId).focus();
 	}
 	
-	var card_manager = function(term) {
-		if (card) {
-			card.close_card();
-			card = false;
-		} else {
-			$('.last-name').find('.name_item').each(function(){
-				$(this).click(function(){
-					//establish new Card
-					card = Card({
-						'name' : $(this).find('.name').text(),
-						'el' : $(context.settings.card),
-						'close_el' : $(context.settings.card_close),
-						'data' : get_json_node($(this).find('.name').text(), json.names, 'full_name')
-					});
-					card.show();
-				});
-			});
-		}
-	}
+	
 	
 	var main = function() {
 		//initialize to empty text field
@@ -709,37 +747,18 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		});
 		
 		
-		
+		//Establish Data
 		$.getJSON(context.settings.services, function(data){
-			lists.services = ServicesList({
-				'data' : data.services,
-				'id' : '.services',
-				'ul' : $('.services').find('ul')
-			});
-			tabs.everything.register_list(lists.services);
-			tabs.services.register_list(lists.services);
-			tab_manager.list_has_loaded();
+			json.services = data.services;
+			tab_manager.json_has_loaded();
 		});
 		
 		$.getJSON(context.settings.data, function(data){
 			json.names = data.physicians;
-			lists.names = NamesList({
-				'data' : data.physicians,
-				'id' : '.last-name',
-				'ul' : $('.last-name').find('ul')
-			});
-			tabs.everything.register_list(lists.names);
-			tabs.names.register_list(lists.names);
-			tab_manager.list_has_loaded();
+			tab_manager.json_has_loaded();
 			
-			lists.specialties = SpecialtiesList({
-				'data' : data.specialties,
-				'id' : '.specialties',
-				'ul' : $('.specialties').find('ul')
-			});
-			tabs.everything.register_list(lists.specialties);
-			tabs.specialties.register_list(lists.specialties);
-			tab_manager.list_has_loaded();
+			json.specialties = data.specialties;
+			tab_manager.json_has_loaded();
         });
 
 		
