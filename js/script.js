@@ -536,9 +536,55 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	var NamesTab = function(settings) {
 		self = Tab(settings);
 		
-		self.do_filter = function(term, regex) {
-			//lists.names.filter(term,regex);
+		var list, printer,
+			term = get_term(),
+			regex = get_regex();
+		
+		var initial_state = function() {
+			printer.init_feedback();
 		}
+		
+		self.list_handler = function(term, regex) {
+			// Tell List to process term, does not return
+			list.filter(term, regex);
+								
+			//Set limits
+			// TODO paginatoin for these types of views
+			
+			//Set Feedback
+			printer.set_feedback( term, list.get_length() );
+			
+			//Print 
+			printer.print_list_multi_column( list.get_filtered() );
+			
+			//Init Card Manager
+			card_manager( get_term() );
+		}
+
+		self.activate = function() {
+			//Names: List and Printer
+			list = NamesList({
+				'data' : json.names,
+				'id' : '.last-name',
+				'ul' : $('.last-name').find('ul')
+			});
+			
+			printer = NamesPrinter({
+				'panel' : settings.panel,
+				'target' : list.get_element()
+			});
+			
+			if (term.length > 0) {
+				self.list_handler(term, regex);
+			} else {
+				initial_state();
+			}
+
+			settings.control.addClass('active');
+			settings.panel.fadeIn();
+			
+		}
+		
 		
 		return self;
 	}
@@ -546,19 +592,107 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	var SpecialtiesTab = function(settings) {
 		self = Tab(settings);
 		
-		self.do_filter = function(term, regex) {
-			lists.specialties.filter(term,regex);
+		var list, printer,
+			term = get_term(),
+			regex = get_regex();
+		
+		var initial_state = function() {
+			printer.init_feedback();
 		}
+		
+		self.list_handler = function(term, regex) {
+			// Tell List to process term, does not return
+			list.filter(term, regex);
+								
+			//Set limits
+			// TODO paginatoin for these types of views
+			
+			//Set Feedback
+			printer.set_feedback( term, list.get_length() );
+			
+			//Print 
+			printer.print_list_multi_column( list.get_filtered() );
+		}
+
+		self.activate = function() {
+			//Specialties: List and Printer
+			list = SpecialtiesList({
+				'data' : json.specialties,
+				'id' : '.specialties',
+				'ul' : $('.specialties').find('ul')
+			});
+			
+			printer = SpecialtiesPrinter({
+				'panel' : settings.panel,
+				'target' : list.get_element()
+			});
+			
+			if (term.length > 0) {
+				self.list_handler(term, regex);
+			} else {
+				initial_state();
+			}
+
+			settings.control.addClass('active');
+			settings.panel.fadeIn();
+			
+		}
+		
 		
 		return self;
 	}
+	
 
+	
 	var ServicesTab = function(settings) {
 		self = Tab(settings);
 		
-		self.do_filter = function(term, regex) {
-			lists.services.filter(term,regex);
+		var list, printer,
+			term = get_term(),
+			regex = get_regex();
+		
+		var initial_state = function() {
+			printer.init_feedback();
 		}
+		
+		self.list_handler = function(term, regex) {
+			// Tell List to process term, does not return
+			list.filter(term, regex);
+								
+			//Set limits
+			// TODO paginatoin for these types of views
+			
+			//Set Feedback, at this time Services has no feedback, feel free to change
+			//printer.set_feedback( term, list.get_length() );
+			
+			//Print 
+			printer.print_list_multi_column( list.get_filtered() );
+		}
+
+		self.activate = function() {
+			//Services: List and Printer
+			list = ServicesList({
+				'data' : json.services,
+				'id' : '.services',
+				'ul' : $('.services').find('ul')
+			});	
+			
+			printer = ServicesPrinter({
+				'panel' : settings.panel,
+				'target' : list.get_element()
+			});
+			
+			if (get_term().length > 0) {
+				self.list_handler(term, regex);
+			} else {
+				initial_state();
+			}
+
+			settings.control.addClass('active');
+			settings.panel.fadeIn();
+			
+		}
+		
 		
 		return self;
 	}
