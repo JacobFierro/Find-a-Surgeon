@@ -59,12 +59,6 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			}
 		}
 		
-		self.clear_list = function() {
-			ul.html("");
-		}
-		
-		
-		
 		self.template = function(data) {
 			return '<li>' + data + '</li>';
 		}
@@ -89,11 +83,10 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			return settings.id;
 		}
 		
-		self.get_short_list = function() {
-			var data = self.limit(self.filtered);
+		self.get_all = function() {
 			var ret = [];
 			$.each(data, function(i, item) {
-				ret.push(self.template(item));
+				ret.push(item);
 			});
 			return ret;
 		}
@@ -114,25 +107,17 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		self.filtered = [];
 		
 		//public methods
+		//used by template
 		self.get_matched_string = function(item) {
 			return item.replace(settings.regex, '<span class="match">'+ item.match(settings.regex) +'</span>');
 		};
 		
+		
+		
+		//these need to go, being called by tab_manager.initial_setup
 		self.initialize_list = function() {
 			settings.ul.html("");
 			self.set_feedback(0);
-		}
-		
-		self.print_list = function(filtered) {
-			self.clear_list();
-
-			$.each(filtered, function(i, item) {
-				settings.ul.append( self.template(item, i) );
-			});
-		}
-		
-		self.init_feedback = function() {
-			$(feedback).html("Enter a term to begin search.");
 		}
 		
 		self.set_feedback = function(match_count) {
@@ -152,50 +137,46 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			$(feedback).html(msg);
 		}
 		
-		self.new_feedback = function(term_count, match_count) {
-			var msg = "";
-				matched = match_count || 0;
-			
-			if (term_count.length === 0 && match_count === 0) {
-				self.init_feedback();
-				return;
-			} else if (term_count.length > 0 && match_count === 0) {
-				msg = "No matches found";
-			} else {
-				var count = (match_count < settings.max) ? match_count : settings.max;
-				var seeall = (match_count < settings.max) ? "" : " (see all)";
-				msg = "Viewing " + count + " of " + match_count + seeall;
-			}
-			$(feedback).html(msg);
+		self.init_feedback = function() {
+			$(feedback).html("Enter a term to begin search.");
 		}
 		
 		
+		
+		
+		
+		
+		
+		
+		
+		//sets self.filtered
 		self.filter = function(term, regex) { //saves the filtered list to the instance variable
 			settings.term = term;
 			settings.regex = regex;
 			
 			if (term.length > 0) {
-				self.filtered = self.get_filtered(regex);
-				//self.set_feedback(filtered.length);
-				//self.print_list( self.limit(filtered) );	
+				self.filtered = self.filter_tester(regex);
 			} else {
 				self.filtered = [];
-				//self.initialize_list();
 			}
 		}
 		
-		self.get_filtered = function(regex) {
+		// tests node against regex, returns array
+		self.filter_tester = function(regex) {
 			var arr = [];
 			$(settings.data).each(function(i, item){
 				var node = item[settings.filter_against] || item;
 				if ( regex.test(node) ) {
-					arr.push(item);
+					arr.push( self.template(item) );
 				}
 			});
 			return arr;
 		}
 		
-		
+		// returns array
+		self.get_filtered_list = function() {
+			return self.filtered;
+		}
 
 		return self; //List
 	}
@@ -205,6 +186,17 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		
 		settings.filter_against = "last_name";
 		
+		self.filter_tester = function(regex) {
+			var arr = [];
+			$(settings.data).each(function(i, item){
+				var node = item[settings.filter_against] || item;
+				if ( regex.test(node) ) {
+					arr.push( item );
+				}
+			});
+			return arr;
+		}
+			
 		self.template = function(data, id) {
 			var temp = '<li class="name_item">';
 				temp += '<div class="image loading" id="id'+ id +'"></div>';
@@ -232,14 +224,17 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		
 		settings.filter_against = "title";
 		
-		print_list = function(filtered) {
-			self.clear_list();
+		//sets self.filtered
+		self.filter = function(term, regex) { //saves the filtered list to the instance variable
+			settings.term = term;
+			settings.regex = regex;
 			
-			$.each(filtered, function(i, item){
-				settings.ul.append( self.template(item) );
+			var arr = [];
+			$(settings.data).each(function(i, item){
+				arr.push( self.template(item) );
 			});
+			self.filtered = arr;
 		}
-		
 		
 		self.template = function(data) {
 			return '<li><a href="'+ context.settings.base_url + data.path + '">' + self.get_matched_string(data.title) + '</a></li>';
@@ -249,6 +244,110 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	}
 	
 	
+	
+	/*
+		List Printer 
+	*/
+	var ListPrinter = function(settings) {
+		var self = {};
+		
+		var items = settings.items,
+			panel = settings.panel,
+			target = settings.target,
+			ul = panel.find(settings.target).find('ul'),
+			feedback = panel.find(settings.target).find('.feedback'),
+			max = null,
+			term = settings.term;
+		
+		self.clear_list = function() {
+			ul.html("");
+		}
+		
+		self.print_list = function() {
+			self.clear_list();
+			self.set_feedback();
+			var limited = self.limit(items);
+			$.each(limited, function(i, item){
+				ul.append(item);
+			});
+		}
+		
+		self.print_names_list = function() {
+			var list = lists.names;
+			
+			self.clear_list();
+			self.set_feedback();
+			var limited = self.limit(items);
+			$.each(limited, function(i, item){
+				ul.append( list.template(item, i) );
+				self.print_image(item.headshot_url, 'id'+i, settings.term.length);
+			});
+			card_manager(term);
+		}
+		
+		self.print_services_list = function() {
+			self.clear_list();
+			$.each(items, function(i, item){
+				ul.append(item);
+			});
+		}
+		
+		self.print_image = function(url, el, count) {
+			var el = '#'+el;
+
+			//count lets me know whether the image needs to be loaded or not, only load on the first letter
+			if (count > 1) {
+				$(el).append('<img src="'+ url +'">');
+			} else {
+				var img = new Image();
+				$(img)
+					.load(function(){
+						$(el).removeClass('loading').append(this);
+					})
+					.error(function(){
+						url = "https://images.med.cornell.edu/headshots/default.jpg";
+					})
+					.attr('src', url);
+			}
+		}
+		
+		self.set_limit = function(num) {
+			settings.max = num;
+		}
+		
+		self.limit = function(all) {
+			return (settings.max) ? all.slice(0, settings.max) : all;
+		}	
+		
+		self.set_feedback = function() {
+			var msg = "";
+				match_count = items.length || 0;
+			
+			if (settings.term.length === 0 && match_count === 0) {
+				self.init_feedback();
+				return;
+			} else if (settings.term.length > 0 && match_count === 0) {
+				msg = "No matches found";
+			} else {
+				var count = (match_count < settings.max) ? match_count : settings.max;
+				var seeall = (match_count < settings.max) ? "" : " (see all)";
+				msg = "Viewing " + count + " of " + match_count + seeall;
+			}
+			$(feedback).html(msg);
+		}
+		
+		self.init_feedback = function() {
+			feedback.html("Enter a term to begin search.");
+		}
+			
+		return self;
+	}
+	
+	
+	
+	/*
+		Card Class
+	*/
 	var Card = function(settings) {
 		var self = {};
 		
@@ -307,35 +406,6 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	} // Card
 	
 	
-	/*
-		List Printer 
-	*/
-	var ListPrinter = function(settings) {
-		var self = {};
-		
-		var target = settings.target;
-		
-		self.clear_list = function() {
-			
-		}
-		
-		self.print_list = function() {
-			
-		}
-		
-		self.set_limit = function(num) {
-			settings.max = num;
-		}
-		
-		self.limit = function(arr) {
-			if (!arr) {
-				arr = object_to_array(arr);
-			}
-			return (settings.max) ? arr.slice(0, settings.max) : arr;
-		}	
-			
-		return self;
-	}
 	
 	
 	/* 
@@ -399,39 +469,37 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	var EverythingTab = function(settings) {
 		self = Tab(settings);
 		
-		self.print_list = function(list, filtered) {
-			list.clear_list();
-
-			$.each(filtered, function(i, item) {
-				settings.ul.append( self.template(item, i) );
-			});
-		}
-		
 		self.do_list = function(term, regex) {
 			$.each(settings.list, function(i, item){
 				item.filter(term, regex);
 			});
 			
-			var html = settings.list[1].get_short_list();
-			log(html);
-			//var filtered = lists.names.return_filtered(regex);
-			//lists.names.new_feedback(term.length, filtered.length);
+			services_printer = ListPrinter({
+				'items' : settings.list[0].get_filtered_list(),
+				'panel' : settings.panel,
+				'target' : settings.list[0].get_element(),
+				'max' : 14,
+				'term' : term
+			});
+			services_printer.print_list();
 			
-			//lists.names.filter(term, regex);
+			names_printer = ListPrinter({
+				'items' : settings.list[1].get_filtered_list(),
+				'panel' : settings.panel,
+				'target' : settings.list[1].get_element(),
+				'max' : 6,
+				'term' : term
+			});
+			names_printer.print_names_list();
 			
-			//var el = lists.names.get_element();
-			//settings.panel.find(el).find('ul').append('hi');
-			
-			//self.set_feedback(filtered.length);
-			//self.print_list( self.limit(filtered) );
-			
-			
-			//log(filtered.length);
-			//log(filtered);
-			
-			//lists.names.filter(term,regex);
-			//lists.specialties.filter(term, regex);
-			//lists.services.filter(term, regex);
+			specialty_printer = ListPrinter({
+				'items' : settings.list[2].get_filtered_list(),
+				'panel' : settings.panel,
+				'target' : settings.list[2].get_element(),
+				'max' : 12,
+				'term' : term
+			});
+			specialty_printer.print_list();
 		}
 		
 		return self;
@@ -500,6 +568,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		} else {
 			next.activate();
 		}
+		focus_input();
 	}
 	
 	tab_manager.register_active = function(view) {
@@ -521,6 +590,8 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	tab_manager.initial_setup = function() {
 		tab_manager.activate_listener();
 		
+		
+		//TODO remove this, needs to use ListPrinter instead
 		lists.services.print_all();
 		lists.names.init_feedback();
 		lists.specialties.init_feedback();
@@ -530,11 +601,11 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	}
 	
 	tab_manager.on_input_event = function(term) {
+		
+		//TODO leading spaces ignored, non-letter chars ignored
 		regex = new RegExp('\\b' + term, "i");
 		
 		tab_manager.active.do_list(term, regex);
-		
-		card_manager(term);
 	}
 	
 	
@@ -587,14 +658,17 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		}
 	}
 	
+	var focus_input = function() {
+		$(context.settings.inputId).focus();
+	}
+	
 	var card_manager = function(term) {
 		if (card) {
 			card.close_card();
 			card = false;
 		} else {
-			$('#last-name').find('.name_item').each(function(){
+			$('.last-name').find('.name_item').each(function(){
 				$(this).click(function(){
-					log($(this).find('.name').text());
 					//establish new Card
 					card = Card({
 						'name' : $(this).find('.name').text(),
@@ -667,6 +741,12 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			tabs.specialties.register_list(lists.specialties);
 			tab_manager.list_has_loaded();
         });
+
+		
+		//bind the keyup event, publish value
+		$(context.settings.inputId).keyup(function(){
+			tab_manager.on_input_event( $(this).val() );
+		});
 	}
 	
 	
@@ -685,15 +765,6 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		main();
 		
 		
-		//establish data then show lists
-		//initialize_data(function(){
-			//$(context.settings.results).fadeIn();
-		//});
-
-		//bind the keyup event, publish value
-		$(context.settings.inputId).keyup(function(){
-			tab_manager.on_input_event( $(this).val() );
-		});
 	}
 	
 })(SRCH);
