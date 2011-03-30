@@ -782,7 +782,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		});
 		
 		$('#control3').click(function(){
-			if( view_manager.get_active() !== views.specialties ) {
+			if( view_manager.get_active() !== views.services ) {
 				views.services = ServicesView({
 					'control' : $('#control3'),
 					'panel' : $('#view3')
@@ -791,7 +791,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			}
 		});
 		
-		/*
+		/* //this only works if views are instantiated in main()
 		$.each(views, function(i, item){
 			item.get_control().click(function(){
 				view_manager.activate_tab(item);
@@ -807,13 +807,17 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		if (this.get_active()) {
 			view_manager.active.deactivate(function(){
 				view.activate();
+				if(get_term().length > 0) {
+					view_manager.on_input_event(get_term());
+				}
 			});
 		} else {
 			view.activate();
 		}
-		
 		view_manager.register_active(view);
+		
 		focus_input();
+		
 		card_manager( get_term() ); //TODO: is there a better place for this?
 	}
 	
@@ -836,6 +840,9 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			this.initialize_views();
 		}
 	}
+	
+	
+	
 	
 	card_manager = function(term) {
 		if (card) {
