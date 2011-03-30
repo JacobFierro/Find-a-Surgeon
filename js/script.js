@@ -290,18 +290,20 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 
 			var html = "";
 			var img = [];
+			var inc = 0;
+			
 			$(balanced).each(function(i, item){
 				html += '<ul>';
-				$(item).each(function(i, item){
-					html += self.template(item, i);
+				$(item).each(function(x, item){
+					html += self.template(item, inc);
 					img.push(item.headshot_url);
+					inc++;
 				});	
 				html += '</ul>';
 			});
 
 			$(settings.target).find('.multi_col_holder').html(html);
 			$.each(img, function(i, item){
-				log(i);
 				self.print_image(item, 'id'+i, i);
 			});
 		}
@@ -399,7 +401,6 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		
 		return self;
 	} // Card
-	
 	
 	
 	
