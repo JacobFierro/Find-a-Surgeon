@@ -742,47 +742,79 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	
 	
 	view_manager.initialize_views = function() {
-		view_manager.activate_listener();
+		view_manager.activate_nav_listener();
 		
 		//Everything View is the initial state
-		view_manager.register_active(views.everything);
-		views.everything.activate();
+		this.activate_view(views.everything);
 	}
 	
 	//View Manager - how the app interfaces with View(s)
-	view_manager.activate_listener = function() {
+	view_manager.activate_nav_listener = function() {
+		
+		$('#control0').click(function(){
+			if( view_manager.get_active() !== views.everything ) {
+				views.everything = EverythingView({
+					'control' : $('#control0'),
+					'panel' : $('#view0')
+				});
+				view_manager.activate_view(views.everything);
+			}
+		});
+		
+		$('#control1').click(function(){
+			if( view_manager.get_active() !== views.names ) {
+				views.names = NamesView({
+					'control' : $('#control1'),
+					'panel' : $('#view1')
+				});
+				view_manager.activate_view(views.names);
+			}
+		});
+		
+		$('#control2').click(function(){
+			if( view_manager.get_active() !== views.specialties ) {
+				views.specialties = SpecialtiesView({
+					'control' : $('#control2'),
+					'panel' : $('#view2')
+				});
+				view_manager.activate_view(views.specialties);
+			}
+		});
+		
+		$('#control3').click(function(){
+			if( view_manager.get_active() !== views.specialties ) {
+				views.services = ServicesView({
+					'control' : $('#control3'),
+					'panel' : $('#view3')
+				});
+				view_manager.activate_view(views.services);
+			}
+		});
+		
+		/*
 		$.each(views, function(i, item){
 			item.get_control().click(function(){
 				view_manager.activate_tab(item);
 			});
-		});	
+		});
+		*/	
 	}
 	
 	//call this method whenever you want to show a new view
-	view_manager.activate_tab = function(tab) {
-		if (this.get_active() !== tab) {
-			tab.prepare();
-			this.switch_handler(tab);
-			this.register_active(tab);
-			
-			//natural place for List interface commands
-		} else {
-			log('view is already active');
-			return;
-		}
-	}
-	
-	// do not call this method directly, call activate_view
-	view_manager.switch_handler = function(next) {
+	view_manager.activate_view = function(view) {
+		view.prepare();
+		
 		if (this.get_active()) {
 			view_manager.active.deactivate(function(){
-				next.activate();
+				view.activate();
 			});
 		} else {
-			next.activate();
+			view.activate();
 		}
+		
+		view_manager.register_active(view);
 		focus_input();
-		card_manager( get_term() );
+		card_manager( get_term() ); //TODO: is there a better place for this?
 	}
 	
 	view_manager.register_active = function(view) {
@@ -907,7 +939,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			'control' : $('#control0'),
 			'panel' : $('#view0')
 		});
-		
+		/*
 		views.names = NamesView({
 			'control' : $('#control1'),
 			'panel' : $('#view1')
@@ -922,7 +954,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			'control' : $('#control3'),
 			'panel' : $('#view3')
 		});
-		
+		*/
 		
 		//Establish Data
 		$.getJSON(context.settings.services, function(data){
