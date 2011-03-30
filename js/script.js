@@ -247,10 +247,11 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			} else {
 				if (settings.max) {
 					var count = (match_count < settings.max) ? match_count : settings.max;
+					var seeall = (match_count < settings.max) ? "" : " (see all)";
 				} else {
 					var count = match_count;
+					var seeall = "";
 				}
-				var seeall = (match_count < settings.max) ? "" : " (see all)";
 				msg = "Viewing " + count + " of " + match_count + seeall;
 			}
 			$(feedback).html(msg);
@@ -316,7 +317,8 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		var self = ListPrinter(settings);
 		
 		self.template = function(data) {
-			return '<li><a href="search.html#'+ data +'">' + self.get_matched_string(data) + '</a></li>';
+			var href = context.settings.base_url + 'search.html?' +  encodeURIComponent(data); 
+			return '<li><a href="'+ href +'">' + self.get_matched_string(data) + '</a></li>';
 		}
 		
 		return self;
@@ -752,6 +754,9 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	//View Manager - how the app interfaces with View(s)
 	view_manager.activate_nav_listener = function() {
 		
+		// only creating a view if it's called for. 
+		// here we're checking that the view isn't active before creating it
+		// bind click event to each specific control
 		$('#control0').click(function(){
 			if( view_manager.get_active() !== views.everything ) {
 				views.everything = EverythingView({
@@ -792,7 +797,9 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			}
 		});
 		
-		/* //this only works if views are instantiated in main()
+		/* 
+		//this only works if views are instantiated in main()
+		//this is more flexible than above, you can have varrying num of views
 		$.each(views, function(i, item){
 			item.get_control().click(function(){
 				view_manager.activate_tab(item);
@@ -808,9 +815,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		if (this.get_active()) {
 			view_manager.active.deactivate(function(){
 				view.activate();
-				if(get_term().length > 0) {
-					view_manager.on_input_event(get_term());
-				}
+				view_manager.on_input_event(get_term());
 			});
 		} else {
 			view.activate();
