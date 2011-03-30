@@ -11,12 +11,16 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	//new and needed
 	var num_json_loaded = 0,
 		json = {},
-		tabs = {},
-		tab_manager = {},
+		views = {},
+		view_manager = {},
 		card = false,
 		regex = null;
 	
 	
+	
+	/*
+		List Class - Data Class
+	*/
 	var List = function(settings) {
 		var self = {};
 		
@@ -135,10 +139,10 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			target = settings.target,
 			ul = panel.find(settings.target).find('ul'),
 			feedback = panel.find(settings.target).find('.feedback'),
-			max = null,
+			max = null;
 		
 		//multi-col, TODO needs better implementation
-		list_balancer = function(list, sections) {
+		self.list_balancer = function(list, sections) {
 			var depth = Math.ceil(list.length / sections);
 				ret = [],
 				start = 0;
@@ -159,24 +163,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			return a;
 		}
 		
-		self.print_list_multi_column = function( list, num_cols ) {
-			var limited = self.limit( list );
-			var balanced = list_balancer( limited, num_cols );
-			
-			var html = "";
-			$(balanced).each(function(i, item){
-				html += '<ul>';
-				$(item).each(function(i, item){
-					html += self.template(item);
-				});	
-				html += '</ul>';
-			});
-			
-			$(target).html(html);
-		}
 		
-		
-		//Public
 		self.clear_list = function() {
 			ul.html("");
 		}
@@ -206,17 +193,33 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			});
 		}
 		
+		self.print_list_multi_column = function( list, num_cols ) {
+			var limited = self.limit( list );
+			var balanced = self.list_balancer( limited, num_cols );
+
+			var html = "";
+			$(balanced).each(function(i, item){
+				html += '<ul>';
+				$(item).each(function(i, item){
+					html += self.template(item);
+				});	
+				html += '</ul>';
+			});
+
+			$(target).find('.multi_col_holder').html(html);
+		}
+		
 		self.print_image = function(url, el, count) {
-			var el = '#'+el;
+			var el = settings.panel.find('#'+el);
 
 			//count lets me know whether the image needs to be loaded or not, only load on the first letter
 			if (count > 1) {
-				$(el).append('<img src="'+ url +'">');
+				el.append('<img src="'+ url +'">');
 			} else {
 				var img = new Image();
 				$(img)
 					.load(function(){
-						$(el).removeClass('loading').append(this);
+						el.removeClass('loading').append(this);
 					})
 					.error(function(){
 						url = "https://images.med.cornell.edu/headshots/default.jpg";
@@ -242,7 +245,11 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			} else if (term.length > 0 && match_count === 0) {
 				msg = "No matches found";
 			} else {
-				var count = (match_count < settings.max) ? match_count : settings.max;
+				if (settings.max) {
+					var count = (match_count < settings.max) ? match_count : settings.max;
+				} else {
+					var count = match_count;
+				}
 				var seeall = (match_count < settings.max) ? "" : " (see all)";
 				msg = "Viewing " + count + " of " + match_count + seeall;
 			}
@@ -277,6 +284,29 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			return temp;
 		};
 		
+		var print_list_multi_column = function( list, num_cols ) {
+			var limited = self.limit( list );
+			var balanced = self.list_balancer( limited, num_cols );
+
+			var html = "";
+			var img = [];
+			$(balanced).each(function(i, item){
+				html += '<ul>';
+				$(item).each(function(i, item){
+					html += self.template(item, i);
+					img.push(item.headshot_url);
+				});	
+				html += '</ul>';
+			});
+
+			$(settings.target).find('.multi_col_holder').html(html);
+			$.each(img, function(i, item){
+				log(i);
+				self.print_image(item, 'id'+i, i);
+			});
+		}
+		self.print_list_multi_column = print_list_multi_column;
+		
 		return self;
 	}
 	
@@ -299,6 +329,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		
 		return self;
 	}
+	
 	
 	
 	/*
@@ -333,7 +364,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			
 			expertise = List({
 				'data' : data.expertise,
-				'id' : '#expertise_holder',
+				'id' : '#expertise',
 				'max' : 40
 			});
 			
@@ -363,7 +394,6 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		self.close_card = function() {
 			el.fadeOut();
 			$(context.settings.inputId).focus();
-			$('#card').find('#appointments').html("");
 		}
 		
 		
@@ -374,9 +404,9 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	
 	
 	/* 
-		Tabs Class
+		View Class
 	*/
-	var Tab = function(settings) {
+	var View = function(settings) {
 		
 		var self = {};
 		
@@ -405,6 +435,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			control.addClass('active');
 		}
 		
+		//todo remove this
 		self.register_list = function(li) {
 			//adds List to (obj) list dictionary
 			settings.list.push(li);
@@ -422,16 +453,20 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			return settings.list;
 		}
 		
+		//TODO is this being used?
 		self.do_filter = function(term, regex) {
 			lists.names.filter(term,regex);
 			lists.specialties.filter(term, regex);
 			lists.services.filter(term, regex);
 		}
 		
+		
+		//TODO write generic handler
 		self.list_handler = function() {
 			
 		}
 		
+		//TODO write generic setup
 		self.initial_setup = function() {
 			log('why');
 		}
@@ -441,39 +476,38 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	
 	}
 		
-	var EverythingTab = function(settings) {
-		self = Tab(settings);
+	var EverythingView = function(settings) {
+		self = View(settings);
 		
-		var names_list, specialties_list, services_list,
-			name_printer, specialties_printer, services_printer,
+		var lists = {}, printers = {}, // lookup objects in this view only
 			term = get_term(),
 			regex = get_regex();
 		
 		var initial_state = function() {
-			names_printer.init_feedback();
-			specialties_printer.init_feedback();
-			services_printer.print_list( services_list.get_all() );
+			printers.names.init_feedback();
+			printers.specialties.init_feedback();
+			printers.services.print_list( lists.services.get_all() );
 		}
 		
 		self.list_handler = function(term, regex) {
 			// Tell List to process term, does not return
-			names_list.filter(term, regex);
-			specialties_list.filter(term, regex);
-			services_list.filter(term, regex);
+			lists.names.filter(term, regex);
+			lists.specialties.filter(term, regex);
+			lists.services.filter(term, regex);
 			
 			//Set limits
-			names_printer.set_limit(6);
-			specialties_printer.set_limit(12);
-			services_printer.set_limit(14);
+			printers.names.set_limit(6);
+			printers.specialties.set_limit(12);
+			printers.services.set_limit(14);
 			
 			//Set Feedback
-			names_printer.set_feedback( term, names_list.get_length() );
-			specialties_printer.set_feedback( term, specialties_list.get_length() );
+			printers.names.set_feedback( term, lists.names.get_length() );
+			printers.specialties.set_feedback( term, lists.specialties.get_length() );
 			
 			//Print Shit Out
-			names_printer.print_names_list( names_list.get_filtered() );
-			specialties_printer.print_list( specialties_list.get_filtered() );
-			services_printer.print_list( services_list.get_filtered() );
+			printers.names.print_names_list( lists.names.get_filtered() );
+			printers.specialties.print_list( lists.specialties.get_filtered() );
+			printers.services.print_list( lists.services.get_filtered() );
 			
 			//Init Card Manager
 			card_manager( get_term() );
@@ -481,41 +515,41 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 
 		self.activate = function() {
 			//Names: List and Printer
-			names_list = NamesList({
+			lists.names = NamesList({
 				'data' : json.names,
 				'id' : '.last-name',
 				'ul' : $('.last-name').find('ul')
 			});
 			
-			names_printer = NamesPrinter({
+			printers.names = NamesPrinter({
 				'panel' : settings.panel,
-				'target' : names_list.get_element()
+				'target' : lists.names.get_element()
 			});
 			
 			
 			//Specialties: List and Printer
-			specialties_list = SpecialtiesList({
+			lists.specialties = SpecialtiesList({
 				'data' : json.specialties,
 				'id' : '.specialties',
 				'ul' : $('.specialties').find('ul')
 			});
 			
-			specialties_printer = SpecialtiesPrinter({
+			printers.specialties = SpecialtiesPrinter({
 				'panel' : settings.panel,
-				'target' : specialties_list.get_element()
+				'target' : lists.specialties.get_element()
 			});
 			
 			
 			//Services: List and Printer
-			services_list = ServicesList({
+			lists.services = ServicesList({
 				'data' : json.services,
 				'id' : '.services',
 				'ul' : $('.services').find('ul')
 			});	
 			
-			services_printer = ServicesPrinter({
+			printers.services = ServicesPrinter({
 				'panel' : settings.panel,
-				'target' : services_list.get_element()
+				'target' : lists.services.get_element()
 			});
 			
 			if (term.length > 0) {
@@ -533,21 +567,19 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		return self;
 	}
 	
-	var NamesTab = function(settings) {
-		self = Tab(settings);
+	var NamesView = function(settings) {
+		self = View(settings);
 		
-		var list, printer,
-			term = get_term(),
-			regex = get_regex();
+		var list, printer, term, regex;
 		
 		var initial_state = function() {
 			printer.init_feedback();
 		}
 		
-		self.list_handler = function(term, regex) {
+		var list_handler = function(term, regex) {
 			// Tell List to process term, does not return
 			list.filter(term, regex);
-								
+						
 			//Set limits
 			// TODO paginatoin for these types of views
 			
@@ -555,13 +587,22 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			printer.set_feedback( term, list.get_length() );
 			
 			//Print 
-			printer.print_list_multi_column( list.get_filtered() );
+			printer.print_list_multi_column( list.get_filtered(), 3 );
 			
 			//Init Card Manager
 			card_manager( get_term() );
+			
 		}
+		self.list_handler = list_handler;
 
-		self.activate = function() {
+		var activate = function() {
+			term = get_term();
+			regex = get_regex();
+			
+			settings.control.addClass('active');
+			settings.panel.fadeIn();
+			
+			
 			//Names: List and Printer
 			list = NamesList({
 				'data' : json.names,
@@ -575,22 +616,19 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			});
 			
 			if (term.length > 0) {
-				self.list_handler(term, regex);
+				list_handler(term, regex);
 			} else {
 				initial_state();
 			}
-
-			settings.control.addClass('active');
-			settings.panel.fadeIn();
-			
 		}
+		self.activate = activate;
 		
 		
 		return self;
 	}
 	
-	var SpecialtiesTab = function(settings) {
-		self = Tab(settings);
+	var SpecialtiesView = function(settings) {
+		self = View(settings);
 		
 		var list, printer,
 			term = get_term(),
@@ -600,7 +638,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			printer.init_feedback();
 		}
 		
-		self.list_handler = function(term, regex) {
+		var list_handler = function(term, regex) {
 			// Tell List to process term, does not return
 			list.filter(term, regex);
 								
@@ -611,10 +649,17 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			printer.set_feedback( term, list.get_length() );
 			
 			//Print 
-			printer.print_list_multi_column( list.get_filtered() );
+			printer.print_list_multi_column( list.get_filtered(), 3 );
 		}
+		self.list_handler = list_handler;
 
-		self.activate = function() {
+		var activate = function() {
+			term = get_term();
+			regex = get_regex();
+			
+			settings.control.addClass('active');
+			settings.panel.fadeIn();
+			
 			//Specialties: List and Printer
 			list = SpecialtiesList({
 				'data' : json.specialties,
@@ -632,20 +677,14 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			} else {
 				initial_state();
 			}
-
-			settings.control.addClass('active');
-			settings.panel.fadeIn();
-			
 		}
-		
+		self.activate = activate;
 		
 		return self;
 	}
 	
-
-	
-	var ServicesTab = function(settings) {
-		self = Tab(settings);
+	var ServicesView = function(settings) {
+		self = View(settings);
 		
 		var list, printer,
 			term = get_term(),
@@ -655,7 +694,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			printer.init_feedback();
 		}
 		
-		self.list_handler = function(term, regex) {
+		var list_handler = function(term, regex) {
 			// Tell List to process term, does not return
 			list.filter(term, regex);
 								
@@ -666,10 +705,11 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			//printer.set_feedback( term, list.get_length() );
 			
 			//Print 
-			printer.print_list_multi_column( list.get_filtered() );
+			printer.print_list_multi_column( list.get_filtered(), 3 );
 		}
+		self.list_handler = list_handler;
 
-		self.activate = function() {
+		var activate = function() {
 			//Services: List and Printer
 			list = ServicesList({
 				'data' : json.services,
@@ -692,31 +732,34 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			settings.panel.fadeIn();
 			
 		}
-		
+		self.activate = activate;
 		
 		return self;
 	}
 	
 	
-	tab_manager.initialize_views = function() {
-		tab_manager.activate_listener();
+	
+	
+	
+	view_manager.initialize_views = function() {
+		view_manager.activate_listener();
 		
 		//Everything View is the initial state
-		tab_manager.register_active(tabs.everything);
-		tabs.everything.activate();
+		view_manager.register_active(views.everything);
+		views.everything.activate();
 	}
 	
 	//View Manager - how the app interfaces with View(s)
-	tab_manager.activate_listener = function() {
-		$.each(tabs, function(i, item){
+	view_manager.activate_listener = function() {
+		$.each(views, function(i, item){
 			item.get_control().click(function(){
-				tab_manager.activate_tab(item);
+				view_manager.activate_tab(item);
 			});
 		});	
 	}
 	
 	//call this method whenever you want to show a new view
-	tab_manager.activate_tab = function(tab) {
+	view_manager.activate_tab = function(tab) {
 		if (this.get_active() !== tab) {
 			tab.prepare();
 			this.switch_handler(tab);
@@ -730,9 +773,9 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	}
 	
 	// do not call this method directly, call activate_view
-	tab_manager.switch_handler = function(next) {
+	view_manager.switch_handler = function(next) {
 		if (this.get_active()) {
-			tab_manager.active.deactivate(function(){
+			view_manager.active.deactivate(function(){
 				next.activate();
 			});
 		} else {
@@ -742,20 +785,20 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		card_manager( get_term() );
 	}
 	
-	tab_manager.register_active = function(view) {
-		tab_manager.active = view;
+	view_manager.register_active = function(view) {
+		view_manager.active = view;
 	}
 	
-	tab_manager.get_active = function() {
-		return tab_manager.active;
+	view_manager.get_active = function() {
+		return view_manager.active;
 	}
 		
-	tab_manager.on_input_event = function(term) {
-		tab_manager.active.list_handler(get_term(), get_regex());
+	view_manager.on_input_event = function(term) {
+		view_manager.active.list_handler(get_term(), get_regex());
 	}
 	
 	//fires setup when all 3 lists have loaded, solves non-sequential firing problem
-	tab_manager.json_has_loaded = function() {
+	view_manager.json_has_loaded = function() {
 		num_json_loaded++;
 		if (num_json_loaded === 3) {
 			this.initialize_views();
@@ -859,23 +902,23 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		clear_input(true);
 		
 		
-		//Establish Tabs
-		tabs.everything = EverythingTab({
+		//Establish Views
+		views.everything = EverythingView({
 			'control' : $('#control0'),
 			'panel' : $('#view0')
 		});
 		
-		tabs.names = NamesTab({
+		views.names = NamesView({
 			'control' : $('#control1'),
 			'panel' : $('#view1')
 		});
 		
-		tabs.specialties = SpecialtiesTab({
+		views.specialties = SpecialtiesView({
 			'control' : $('#control2'),
 			'panel' : $('#view2')
 		});
 		
-		tabs.services = ServicesTab({
+		views.services = ServicesView({
 			'control' : $('#control3'),
 			'panel' : $('#view3')
 		});
@@ -884,21 +927,21 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		//Establish Data
 		$.getJSON(context.settings.services, function(data){
 			json.services = data.services;
-			tab_manager.json_has_loaded();
+			view_manager.json_has_loaded();
 		});
 		
 		$.getJSON(context.settings.data, function(data){
 			json.names = data.physicians;
-			tab_manager.json_has_loaded();
+			view_manager.json_has_loaded();
 			
 			json.specialties = data.specialties;
-			tab_manager.json_has_loaded();
+			view_manager.json_has_loaded();
         });
 
 		
 		//bind the keyup event, publish value
 		$(context.settings.inputId).keyup(function(){
-			tab_manager.on_input_event( $(this).val() );
+			view_manager.on_input_event( $(this).val() );
 		});
 	}
 	

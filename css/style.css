@@ -517,6 +517,13 @@ body {
 			}
             
             
+
+
+	#view1 .multi_col_holder ul, #view2 .multi_col_holder ul, #view3 .multi_col_holder ul {
+		float: left;
+		width: 248px;
+		margin-right: 4px;
+	}
             
    
 	/* styling */
