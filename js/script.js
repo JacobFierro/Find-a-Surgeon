@@ -317,7 +317,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		var self = ListPrinter(settings);
 		
 		self.template = function(data) {
-			var href = context.settings.base_url + 'search.html?' +  encodeURIComponent(data); 
+			var href = context.settings.base_url + 'results.html?' +  encodeURIComponent(data); 
 			return '<li><a href="'+ href +'">' + self.get_matched_string(data) + '</a></li>';
 		}
 		
@@ -999,7 +999,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			results : '#results',
 			card : '#card',
 			card_close : '#card-close',
-			base_url : "http://cornellsurgery.org/patients/"
+			base_url : "http://localhost/fas/"
 		};
 		
 		
