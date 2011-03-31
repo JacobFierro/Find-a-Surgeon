@@ -240,7 +240,7 @@ body {
 	width: 520px;
 	margin: 0 auto;
 	text-align: left;
-	padding: 50px;
+	padding: 20px 50px;
 	background: #FFFFFF;
 	
 	
@@ -253,11 +253,23 @@ body {
 	width: 520px;
 	float:left;
 	background: #FFFFFF;
-	
-	
-	
-
 }
+
+.again a {
+	width: 80px;
+	display: block;
+	text-decoration: none;
+	color: #055381;
+	background-color: #eff3f6;
+	border: 1px solid #D6D5D5;
+	padding: 8px 5px;
+	margin-bottom: 30px;
+}
+
+	.again a:hover {
+		background-color: #bbccdc;
+		color: #033c5e;
+	}
 
 h2 {
 	font-family: 'Georgia','Times New Roman',serif;
@@ -272,7 +284,7 @@ h2 {
 }
 
 #search_results {
-	margin-top: 50px;
+	margin-top: 30px;
 	
 }
  
@@ -392,6 +404,7 @@ h2 {
             height: 12px;
             padding-top: 2px;
             
+			border: 1px solid #D6D5D5;
             color: #055381;
             font-size: 10px;
             text-decoration: none;

@@ -999,7 +999,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			results : '#results',
 			card : '#card',
 			card_close : '#card-close',
-			base_url : "http://localhost/fas/"
+			base_url : "http://new.weill.cornell.edu/testspace/fas/"
 		};
 		
 		
