@@ -141,7 +141,35 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			feedback = panel.find(settings.target).find('.feedback'),
 			max = null;
 		
-		//multi-col, TODO needs better implementation
+		
+		
+		var object_to_array = function(object) {
+			var a = [];
+			$(object).each(function(i, item){
+				a.push(item);
+			});
+			return a;
+		}
+		
+		// Pagintation
+		
+		var print_paginated = function(list, num_cols) {
+			log(settings.max);
+			if (!settings.max) {
+				new Error('set max to use ListPrinter.print_paginate');
+				return;
+			}
+			
+			var pages = Math.ceil(list.length/max);
+			
+			
+			
+			self.print_list_multi_column(list, num_cols); //, i);
+			
+		}
+		self.print_paginated = print_paginated;
+		
+		
 		self.list_balancer = function(list, sections) {
 			var depth = Math.ceil(list.length / sections);
 				ret = [],
@@ -155,15 +183,6 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			return ret;
 		}
 		
-		object_to_array = function(object) {
-			var a = [];
-			$(object).each(function(i, item){
-				a.push(item);
-			});
-			return a;
-		}
-		
-		
 		self.clear_list = function() {
 			ul.html("");
 		}
@@ -176,13 +195,14 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			});
 		}
 		
-		self.print_list_multi_column = function( list, num_cols ) {
+		self.print_list_multi_column = function( list, num_cols, page ) {
 			var limited = self.limit( list );
 			var balanced = self.list_balancer( limited, num_cols );
+			var page_class = (page) ? 'page'+page : "no-pagination";
 
 			var html = "";
 			$(balanced).each(function(i, item){
-				html += '<ul>';
+				html += '<ul class='+ page_class +'>';
 				$(item).each(function(i, item){
 					html += self.template(item);
 				});	
@@ -580,13 +600,13 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			list.filter(term, regex);
 						
 			//Set limits
-			// TODO paginatoin for these types of views
+			printer.set_limit(20);
 			
 			//Set Feedback
 			printer.set_feedback( term, list.get_length() );
 			
 			//Print 
-			printer.print_list_multi_column( list.get_filtered(), 3 );
+			printer.print_paginated( list.get_filtered(), 3 );
 			
 			//Init Card Manager
 			card_manager( get_term() );
