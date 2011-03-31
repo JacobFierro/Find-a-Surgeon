@@ -176,23 +176,6 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			});
 		}
 		
-		self.print_names_list = function( list ) {
-			self.clear_list();
-			var limited = self.limit(list);
-			$.each(limited, function(i, item){
-				ul.append( self.template(item, i) );
-				self.print_image(item.headshot_url, 'id'+i, i);
-			});
-			//card_manager( get_term() );
-		}
-		
-		self.print_services_list = function() {
-			self.clear_list();
-			$.each(items, function(i, item){
-				ul.append(item);
-			});
-		}
-		
 		self.print_list_multi_column = function( list, num_cols ) {
 			var limited = self.limit( list );
 			var balanced = self.list_balancer( limited, num_cols );
@@ -277,6 +260,8 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	var NamesPrinter = function(settings) {
 		var self = ListPrinter(settings);
 		
+		var ul = settings.panel.find(settings.target).find('ul');
+		
 		self.template = function(data, id) {
 			var temp = '<li class="name_item">';
 				temp += '<div class="image loading" id="id'+ id +'"></div>';
@@ -284,6 +269,17 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 				temp += (data.practicing_specialty) ? '<div class="prac_spec">'+ data.practicing_specialty  +'</div></li>' : "";
 			return temp;
 		};
+		
+		var print_list = function( list ) {
+			self.clear_list();
+			var limited = self.limit(list);
+			$.each(limited, function(i, item){
+				ul.append( self.template(item, i) );
+				self.print_image(item.headshot_url, 'id'+i, i);
+			});
+			//card_manager( get_term() );
+		}
+		self.print_list = print_list;
 		
 		var print_list_multi_column = function( list, num_cols ) {
 			var limited = self.limit( list );
@@ -508,7 +504,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			printers.specialties.set_feedback( term, lists.specialties.get_length() );
 			
 			//Print Shit Out
-			printers.names.print_names_list( lists.names.get_filtered() );
+			printers.names.print_list( lists.names.get_filtered() );
 			printers.specialties.print_list( lists.specialties.get_filtered() );
 			printers.services.print_list( lists.services.get_filtered() );
 			
@@ -850,7 +846,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 	
 	
 	
-	card_manager = function(term) {
+	var card_manager = function(term) {
 		if (card) {
 			card.close_card();
 			card = false;
