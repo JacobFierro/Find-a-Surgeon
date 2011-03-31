@@ -151,20 +151,39 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			return a;
 		}
 		
+		var paginated_hide_all = function(classes) {
+			$.each(classes, function(i, item){
+				item.hide();
+			});
+		}
+		
+		var paginated_create_controls = function(classes) {
+			
+		}
+		
 		// Pagintation
 		
 		var print_paginated = function(list, num_cols) {
-			log(settings.max);
 			if (!settings.max) {
-				new Error('set max to use ListPrinter.print_paginate');
+				log('set max to use ListPrinter.print_paginated');
 				return;
 			}
 			
-			var pages = Math.ceil(list.length/max);
+			var page_count = 1, 
+				page_classes = [];
 			
+			// find total pages
+			page_count = Math.ceil(list.length/settings.max);
+			// create the classes used
+			var html = "";
+			for (var i=1; i<=page_count; i++){
+				page_classes[i] = "page" + i;
+				html += self.get_list_multi_column(list, num_cols, i);
+			}
 			
+			paginated_hide_all(page_classes);
 			
-			self.print_list_multi_column(list, num_cols); //, i);
+			$(target).find('.multi_col_holder').html(html);
 			
 		}
 		self.print_paginated = print_paginated;
@@ -210,6 +229,23 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			});
 
 			$(target).find('.multi_col_holder').html(html);
+		}
+		
+		self.get_list_multi_column = function( list, num_cols, page ) {
+			var limited = self.limit( list );
+			var balanced = self.list_balancer( limited, num_cols );
+			var page_class = (page) ? 'page'+page : "no-pagination";
+
+			var html = "";
+			$(balanced).each(function(i, item){
+				html += '<ul class='+ page_class +'>';
+				$(item).each(function(i, item){
+					html += self.template(item);
+				});	
+				html += '</ul>';
+			});
+
+			return html;
 		}
 		
 		self.print_image = function(url, el, count) {
@@ -301,16 +337,19 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		}
 		self.print_list = print_list;
 		
-		var print_list_multi_column = function( list, num_cols ) {
+		var print_list_multi_column = function( list, num_cols, page ) {
 			var limited = self.limit( list );
 			var balanced = self.list_balancer( limited, num_cols );
-
+			var page_class = (page>0) ? 'page'+page : "no-pagination";
+			log(page_class);
+			
+			
 			var html = "";
 			var img = [];
 			var inc = 0;
 			
 			$(balanced).each(function(i, item){
-				html += '<ul>';
+				html += '<ul class='+ page_class +'>';
 				$(item).each(function(x, item){
 					html += self.template(item, inc);
 					img.push(item.headshot_url);
@@ -662,13 +701,13 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			list.filter(term, regex);
 								
 			//Set limits
-			// TODO paginatoin for these types of views
+			printer.set_limit(30);
 			
 			//Set Feedback
 			printer.set_feedback( term, list.get_length() );
 			
 			//Print 
-			printer.print_list_multi_column( list.get_filtered(), 3 );
+			printer.print_paginated( list.get_filtered(), 3 );
 		}
 		self.list_handler = list_handler;
 
