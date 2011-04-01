@@ -491,8 +491,9 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			});
 
 			el.find('#phone').text(data.phone || "N/A");
-			el.find('#fax').text(data.phone || "N/A");
-			el.find('#address').text(data.address || "N/A");
+			el.find('#fax').text(data.fax || "N/A");
+			var address = (data.address === true) ? data.address.street +"<br>"+ data.address.room +"<br>"+ data.address.city +', '+ data.address.state + ' ' + data.address.zip : 'no havey';
+			el.find('#address').text(address || "N/A");
 			
 			expertise = List({
 				'data' : data.expertise,

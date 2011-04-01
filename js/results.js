@@ -111,7 +111,8 @@ var SRCH_RSLT = typeof(SRCH_RSLT) === "undefined" ? {} : SRCH_RSLT;
 		html += '</tr>';
 		html += '<tr class="address">';
 		html += '<td class="title">Address:</td>';
-		html += '<td class="value">'+ data.address || "N/A" +'</td>';
+		var address = (data.address === true) ?  data.address.street +"<br>"+ data.address.room +"<br>"+ data.address.city +', '+ data.address.state + ' ' + data.address.zip : '';
+		html += '<td class="value">'+ address +'</td>';
 		html += '</tr>';
 		html += '</table>';
 		
@@ -187,7 +188,7 @@ var SRCH_RSLT = typeof(SRCH_RSLT) === "undefined" ? {} : SRCH_RSLT;
 		term = get_url_var();
 		set_term_display(term);
 		
-		regex = new RegExp( '^'+ get_url_var() );
+		regex = new RegExp( '^'+ get_url_var() + '$');
 		
 		
 		$.getJSON(context.settings.data, function(data){
