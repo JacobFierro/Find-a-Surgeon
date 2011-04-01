@@ -139,13 +139,16 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			target = settings.target,
 			ul = panel.find(settings.target).find('ul'),
 			feedback = panel.find(settings.target).find('.feedback'),
-			max = null;
+			max = null,
+			paginate = {};
 		
 		settings.paginate_option = false;
+		paginate.controls = {};
 		
 		//Pagination
-		var set_paginate_option = function( option ){
+		var set_paginate_option = function( option, num_per_page ){
 			settings.paginate_option = option;
+			settings.paginate_num_per_page = num_per_page;
 		}
 		self.set_paginate_option = set_paginate_option;
 		
@@ -156,84 +159,95 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		
 		var paginate = function( obj ){
 			//hide all to start
-			//self.paginate.hide_all();
-			
+			//self.paginate_hide_all();
+
 			//total pages needed
-			var num_pages = Math.ceil( obj.num_items / self.get_limit() );
+			var num_pages = Math.ceil( obj.num_items / settings.paginate_num_per_page );
 			
 			//create classes array
 			var classes = [];
-			$.each(num_pages, function(i, item){
+			for (var i=1; i <= num_pages; i++){
 				classes[i] = 'page' + i;
-			});
+			}
 			
 			//add the right classes to the uls
 			var inc = 0;
-			var page = 0;
+			var page = 1;
 			$(target).find('.multi_col_holder').find('ul').each(function(i, item){
 				if (inc < obj.num_cols) {
 					inc++;
 				} else {
 					page++;
-					inc = 0;
+					inc = 1;
 				}
 				$(item).addClass(classes[page]);
 			});
 			
-			self.paginate.controls(classes);
+			self.paginate_show_page( 'page1' );
+			self.paginate_controls(classes);
 			
-			//listen for click
-			panel.find('pag_controls').find('.control a').click(function(){
-				self.paginate.show_page('page'+$(this).text());
-			});
+			
 		}
 		self.paginate = paginate;
 		
-		var paginate.hide_all = function() {
+		var paginate_hide_all = function() {
 			$(target).find('.multi_col_holder').find('ul').hide();
 		}
-		self.paginate.hide_all = paginate.hide_all;
+		self.paginate_hide_all = paginate_hide_all;
 		
-		var paginate.controls = function(classes) {
-			var holder = settings.panel.find(settings.target).find('.multi_col_holder');
+		var paginate_controls = function(classes) {
+			var holder = settings.panel.find('.pag_controls');
+			holder.html('');
 			
-			holder.append('<div class="pag_controls"></div>');
+			for (var i=1; i <= classes.length; i++) {
+				holder.append('<span class="control"><a href="#">'+ i +'</a></span>');
+			}
 			
-			$.each(classes, function(i, item){
-				holder.find('.pag_controls').append('<span class="control"><a href="#">'+i+'</a></span>');
-			});
-			
-			self.paginate.show_page('.' + classes[0], holder.find('.pag_controls'));
+			//listen for click
+			log(holder);
+			holder.find('.control a').each(function(){
+				$(this).click(function(){
+					self.paginate_show_page('page'+$(this).text());
+				});
+			})
 		}
-		self.paginate.controls = paginate.controls;
+		self.paginate_controls = paginate_controls;
 		
-		var paginate.show_page = function( page ) {
-			self.paginate.hide_all();
-			self.paginate.register_active(page);
+		var paginate_show_page = function( page ) {
+			self.paginate_hide_all();
+			self.paginate_register_active(page);
+			
 			settings.panel.find('.'+page).fadeIn();
 		}
-		self.paginate.show_page = paginate.show_page;
+		self.paginate_show_page = paginate_show_page;
 		
-		
-		var paginate.register_active = function( page, controls ) {
-			var regex = /[0-9]+/;
-			var page_num = page.match(regex);
+		var paginate_register_active = function( page ) {
+			var regex = /[0-9]+/,
+				page_num = page.match(regex),
+				holder = settings.panel.find(settings.target).find('.multi_col_holder');
 			
-			controls.find('.active').removeClass('active');
-			controls.find('.page'+page_num).addClass('active');
+			holder.find('.active').removeClass('active');
+			holder.find('.page'+page_num).addClass('active');
 		}
-		self.register_active = register_active;
+		self.paginate_register_active = paginate_register_active;
 		
 		
 		
 		
 		//multi-col, TODO needs better implementation
 		self.list_balancer = function(list, sections) {
-			var depth = Math.ceil(list.length / sections);
-				ret = [],
+			var ret = [],
 				start = 0;
-
-			for (var i=0; i < sections; i++) {
+			
+			if (self.get_paginate_option() === true) {
+				var depth = Math.ceil(settings.paginate_num_per_page / sections);
+			} else {
+				var depth = Math.ceil(list.length / sections);
+			}
+			
+			var num_lists = list.length / depth;
+			
+			for (var i=0; i < num_lists; i++) {
 				ret.push( list.slice(start, start+depth) );
 				start = start + depth;
 			}
@@ -383,7 +397,7 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			return temp;
 		};
 		
-		var print_list_multi_column = function( list, num_cols ) {
+		var print_list_multi_column = function( list, num_cols ) {			
 			var limited = self.limit( list );
 			var balanced = self.list_balancer( limited, num_cols );
 
@@ -689,12 +703,9 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		var list_handler = function(term, regex) {
 			// Tell List to process term, does not return
 			list.filter(term, regex);
-						
-			//Set limits
-			printer.set_limit(15);
 			
 			//Paginate or not
-			printer.set_paginate_option(true);
+			printer.set_paginate_option(true, 15);
 			
 			//Set Feedback
 			printer.set_feedback( term, list.get_length() );
@@ -754,12 +765,9 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		var list_handler = function(term, regex) {
 			// Tell List to process term, does not return
 			list.filter(term, regex);
-								
-			//Set limits
-			printer.set_limit(30);
 			
 			//Paginate or not
-			printer.set_paginate_option(true);
+			printer.set_paginate_option(true, 30);
 			
 			//Set Feedback
 			printer.set_feedback( term, list.get_length() );
