@@ -184,9 +184,12 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			});
 			
 			self.paginate_show_page( 'page1' );
-			self.paginate_controls(classes);
 			
-			
+			if (classes.length-1 > 1) {
+				self.paginate_controls(classes);
+			} else {
+				settings.panel.find('.pag_controls').html('');
+			}
 		}
 		self.paginate = paginate;
 		
@@ -199,12 +202,11 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 			var holder = settings.panel.find('.pag_controls');
 			holder.html('');
 			
-			for (var i=1; i <= classes.length; i++) {
+			for (var i=1; i < classes.length; i++) {
 				holder.append('<span class="control"><a href="#">'+ i +'</a></span>');
 			}
 			
 			//listen for click
-			log(holder);
 			holder.find('.control a').each(function(){
 				$(this).click(function(){
 					self.paginate_show_page('page'+$(this).text());
@@ -223,11 +225,16 @@ var SRCH = typeof(SRCH) === "undefined" ? {} : SRCH;
 		
 		var paginate_register_active = function( page ) {
 			var regex = /[0-9]+/,
-				page_num = page.match(regex),
-				holder = settings.panel.find(settings.target).find('.multi_col_holder');
+				page_num = parseInt(page.match(regex)),
+				holder = settings.panel.find('.pag_controls');
 			
-			holder.find('.active').removeClass('active');
-			holder.find('.page'+page_num).addClass('active');
+			holder.find('.active').removeClass();
+			
+			holder.find('.control').each(function() {
+				if ( parseInt( $(this).find('a').html() ) === page_num ) {
+					$(this).find('a').addClass('active');
+				}
+			});
 		}
 		self.paginate_register_active = paginate_register_active;
 		
